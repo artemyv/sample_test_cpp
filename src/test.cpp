@@ -25,12 +25,18 @@ public:
 };
 template<typename T>
 class TD;
+
+auto derefLess =
+    [](const auto& p1, const auto& p2)
+        { return *p1 < *p2; };
+
+bool operator< (const HomeForSale& lhs, const HomeForSale& rhs){
+    return lhs.unused < rhs.unused;
+}
 int main() {
    HomeForSale h;
-   std::vector<HomeForSale> v(1);
-   v.push_back(std::move(h));
-auto s = std::move(v);
-   TD<decltype(h)> hType;
-TD<decltype(s)> sType;
+   HomeForSale u;
+   if(h<u){}
+   if(derefLess(&h,&u)){}
     return 0;
 }
