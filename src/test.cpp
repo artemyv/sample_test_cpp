@@ -23,10 +23,14 @@ public:
      unused = h.unused;
  }
 };
-
+template<typename T>
+class TD;
 int main() {
    HomeForSale h;
    std::vector<HomeForSale> v(1);
    v.push_back(std::move(h));
+auto s = std::move(v);
+   TD<decltype(h)> hType;
+TD<decltype(s)> sType;
     return 0;
 }
