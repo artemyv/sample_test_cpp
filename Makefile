@@ -30,8 +30,9 @@ ${ODIR}:
 
 
 
-$(ODIR)/%.o: $(SDIR)/%.cpp $(DEPS)
-	$(CC) -c -o $@ $< $(CFLAGS)
+$(ODIR)/%.o: $(SDIR)/%.cpp  $(DEPS)
+	$(CC) $(CFLAGS) $(CPPFLAGS) -c $< -o $@
+
 
 test: $(OBJ)
 	$(CC) -o $@ $^ $(CFLAGS) $(LIBS)
