@@ -1,43 +1,44 @@
-//#include <iostream>
-//#include <iomanip>
-//#include <thread>
-//#include <mutex>
-//#include <deque>
-//#include <string>
-//#include <vector>
-class Uncopyable {
-protected:
-Uncopyable() {}
-~Uncopyable() {}
-private:
-Uncopyable(const Uncopyable&);
-Uncopyable& operator=(const Uncopyable&);
-};
-class HomeForSale: private Uncopyable {
-	HomeForSale(const HomeForSale&) = delete;
-	HomeForSale& operator=(const HomeForSale&) = delete;
-public:
- int unused;
-    HomeForSale():unused(0){}
- /*   HomeForSale(HomeForSale&& h)
- {
-     unused = h.unused;
- }*/
-};
-template<typename T>
-class TD;
+//Testing Item 8: Prefer nullptr to 0 and NULL .
+//From Effective Modern C++
+//  42 SPECIFIC WAYS TO IMPROVE YOUR USE OF C++11 AND C++14
+//  by Scott Meyers
 
-auto derefLess =
-    [](const auto& p1, const auto& p2)
-        { return *p1 < *p2; };
+#include <mutex>
+#include <memory>
+#include <iostream>
+class Widget
+{
 
-bool operator< (const HomeForSale& lhs, const HomeForSale& rhs){
-    return lhs.unused < rhs.unused;
+};
+
+int f1(std::shared_ptr<Widget> )    // call these only when
+{
+    return 0;
 }
+double f2(std::unique_ptr<Widget> ) // the appropriate
+{
+    return 1.0;
+}
+bool f3(Widget*)                   // mutex is locked
+{
+    return true;
+}
+
+std::mutex f1m, f2m, f3m; // mutexes for f1, f2, and f3
+
+using MuxGuard = std::lock_guard<std::mutex>;
+
+template<typename FuncType, typename MuxType, typename PtrType>
+    decltype(auto) lockAndCall(FuncType func, MuxType& mutex, PtrType ptr)
+{
+    MuxGuard g(mutex);
+    return func(ptr);
+}
+
 int main() {
-   HomeForSale h;
-   HomeForSale u;
-   if(h<u){}
-   if(derefLess(&h,&u)){}
+    auto result1 = lockAndCall(f1, f1m, 0); // error!
+    auto result2 = lockAndCall(f2, f2m, NULL);// error!
+    auto result3 = lockAndCall(f3, f3m, nullptr);
+    std::cout << result1 << ' ' << result2 << ' '    << result3     << std::endl;
     return 0;
 }
