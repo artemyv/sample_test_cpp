@@ -13,11 +13,12 @@ private:
 Uncopyable(const Uncopyable&);
 Uncopyable& operator=(const Uncopyable&);
 };
-
+#ifdef  _MSC_VER
 #pragma warning(disable:4625)
 #pragma warning(disable:4626)
 #pragma warning(disable:5026)
 #pragma warning(disable:5027)
+#endif
 class HomeForSale: private Uncopyable {
 public:
  int unused;
