@@ -1,2 +1,6 @@
 obj/*.*
 test
+*.suo
+*.ipch
+/Debug
+/.vs/Array_of_strings/v15

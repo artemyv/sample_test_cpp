@@ -1,10 +1,10 @@
-#include <iostream>
-#include <iomanip>
-#include <thread>
-#include <mutex>
-#include <deque>
-#include <string>
-#include <vector>
+//#include <iostream>
+//#include <iomanip>
+//#include <thread>
+//#include <mutex>
+//#include <deque>
+//#include <string>
+//#include <vector>
 class Uncopyable {
 protected:
 Uncopyable() {}
@@ -14,14 +14,18 @@ Uncopyable(const Uncopyable&);
 Uncopyable& operator=(const Uncopyable&);
 };
 
+#pragma warning(disable:4625)
+#pragma warning(disable:4626)
+#pragma warning(disable:5026)
+#pragma warning(disable:5027)
 class HomeForSale: private Uncopyable {
 public:
  int unused;
     HomeForSale():unused(0){}
-    HomeForSale(HomeForSale&& h)
+ /*   HomeForSale(HomeForSale&& h)
  {
      unused = h.unused;
- }
+ }*/
 };
 template<typename T>
 class TD;
