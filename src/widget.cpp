@@ -12,5 +12,4 @@ Widget::Widget()
     : pImpl(std::make_unique<Impl>())
 {}
 
-Widget::~Widget()
-{}
+Widget::~Widget() =default;
