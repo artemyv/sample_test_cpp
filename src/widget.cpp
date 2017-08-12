@@ -9,5 +9,8 @@ struct Widget::Impl {
 }; // as before
 
 Widget::Widget()
-: pImpl(std::make_unique<Impl>())
+    : pImpl(std::make_unique<Impl>())
+{}
+
+Widget::~Widget()
 {}
