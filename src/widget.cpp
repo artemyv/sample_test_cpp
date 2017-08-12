@@ -13,3 +13,5 @@ Widget::Widget()
 {}
 
 Widget::~Widget() =default;
+Widget::Widget(Widget&& ) = default;
+Widget& Widget::operator=(Widget&& ) = default;
