@@ -15,3 +15,15 @@ Widget::Widget()
 Widget::~Widget() =default;
 Widget::Widget(Widget&& ) = default;
 Widget& Widget::operator=(Widget&& ) = default;
+
+Widget::Widget(const Widget& rhs)
+    : pImpl(std::make_unique<Impl>(*rhs.pImpl))
+{
+// copy ctor
+}
+
+Widget& Widget::operator=(const Widget& rhs)
+{
+    *pImpl = *rhs.pImpl;
+    return *this;
+}
