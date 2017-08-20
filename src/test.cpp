@@ -1,72 +1,42 @@
 // The C++ Programming Language
 // Fourth Edition
 // Bjarne Stroustrup
-// 32.4.1 for_each()
-// f=for_each(b,e ,f) (§iso.25.2.4) Do f(x) for each x in [ b : e ); return f
+// 32.4.3 count() (§iso.25.2.9)
+// x=count(b,e,v) x is the number of elements ∗p in [ b : e ) such that v==∗p
+// x=count_if(b,e,v,f) x is the number of elements ∗p in [ b : e ) such that f(∗p)
 
-//I was interested why you need return value - so I read following blog
-//http://xenon.arcticus.com/c-morsels-std-for-each-functors-member-variables
+//looks like we have a typo here - see sample below
+//the second line shoudl be
+// x=count_if(b,e,f) x is the number of elements ∗p in [ b : e ) such that f(∗p)
 
+//sample also has to be modified to replace the direct call to isspace with lambda which 
+//casts the passed parameter to unsigned char
 
-
-#include <vector>
-#include <iostream>
+#include <string>
 #include <algorithm>
+#include <iostream>
+#include <cctype>
+using namespace std;
 
-class Contained
+auto f(const string& s)
 {
-public:
-    Contained() : _shouldBeCounted(0)
-    {
-
-    }
-    bool getShouldBeCounted(void) const
-    {
-        return(_shouldBeCounted);
-    }
-    void setShouldBeCounted(bool newShouldBeCounted)
-    {
-        _shouldBeCounted = newShouldBeCounted;
-    }
-private:
-    bool _shouldBeCounted;
-};
-
-class CountingFunctor
-{
-public:
-    CountingFunctor() : _counter(0)
-    {
-
-    }
-    int getCounter(void) const
-    {
-        return(_counter);
-    }
-    void operator () (Contained item)
-    {
-        if(item.getShouldBeCounted()) _counter++;
-    }
-private:
-    int _counter;
-};
-
-int main(void)
-{
-    std::vector<Contained> v(10);
-    for(std::vector<Contained>::size_type i=0; i<v.size(); ++i) v[i].setShouldBeCounted(i%2==0);
-
-    CountingFunctor f1;
-    CountingFunctor f2=std::for_each(v.begin(),v.end(),f1);
-    std::cout << "f1.getCounter()==" << f1.getCounter() << std::endl;
-    std::cout << "f2.getCounter()==" << f2.getCounter() << std::endl;
-
-    return 0;
+    auto n_space = count(s.begin(),s.end(),' ');
+    auto n_whitespace = count_if(s.begin(),s.end(),[](unsigned char c){ return std::isspace(c); });
+    return make_pair(n_space, n_whitespace);
 }
 
-/******************
- Output:
- $ ./test
-f1.getCounter()==0
-f2.getCounter()==5
-*******************/
+int main()
+{
+    std::string test("This is sample.\n");
+    auto res = f(test);
+    std::cout << "String \"" << test << "\" contains " << res.first << " spaces and " << res.second << " whitespaces.\n";
+    return 0;
+
+}
+
+/*************************************
+Output
+$ ./test
+String "This is sample.
+" contains 2 spaces and 3 whitespaces.
+*************************************/
