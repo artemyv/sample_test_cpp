@@ -8,10 +8,13 @@ template <typename T, typename Enable = void>
 struct A;
 
 template <typename T>
-constexpr bool f() { return true; }
+struct f
+{
+	constexpr operator bool () { return true; }
+};
 
 template <typename T>
-struct A<T, std::enable_if_t<f<T>()>> {};
+struct A<T, std::enable_if_t<(f<T>())>> {};
 
 int main() {
   A<int> f;
