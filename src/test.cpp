@@ -1,30 +1,44 @@
-// https://stackoverflow.com/questions/45784065/calling-constexpr-function-in-enable-if-t
-//works in gcc - shoudl not work in VS
+// https://stackoverflow.com/questions/45783833/c-functor-template-for-class-member-functions/45785878#45785878
 
-#include <iostream>
-#include <type_traits>
+template<class>
+struct Functor;
 
-template <typename T, typename Enable = void>
-struct A;
+template<class TReturn, class... TParameter>
+struct Functor<TReturn(TParameter...)> {
+    TReturn (*ptr)(void*, TParameter...);
+    void     *object;
 
-template <typename T>
-struct f
-{
-	constexpr operator bool () { return true; }
+    template<class TObject, TReturn(TObject::*TMemberFunction)(TParameter...)>
+    static TReturn memberCaller(void *obj, TParameter... params) {
+        TObject *c = static_cast<TObject*>(obj);
+        return (c->*TMemberFunction)(params...);
+    }
+
+    TReturn operator()(TParameter... params) {
+        return ptr(object, params...);
+    }
 };
 
-template <typename T>
-struct A<T, std::enable_if_t<(f<T>())>> {};
-
-int main() {
-  A<int> f;
-
-  std::cout << sizeof(f) << '\n';
-
+#include <iostream>
+class Test {
+public:
+    void func(int a) {
+        std::cout << a << std::endl;
+    }
+};
+int main()
+{
+    Functor<void(int)> f;
+    Test               t;
+    
+    f.object = &t;
+    f.ptr    = &Functor<void(int)>::memberCaller<Test, &Test::func>;
+    
+    f(100);
+    
 }
-
 /*************************************
 Output
 $ ./test
-1
+100
 *************************************/
