@@ -1,11 +1,12 @@
 // The C++ Programming Language
 // Fourth Edition
 // Bjarne Stroustrup
-// 33.3 Range Access Functions
+// 33.4 Function Objects
 
 #include <iostream>
 #include <iterator>
 #include <vector>
+#include <algorithm>
 
 using namespace std;
 template<typename Cont>
@@ -18,8 +19,8 @@ void f()
 {
     vector<int> v {1,2,3,4,5};
     print(v);
-    int a[] {1,2,3,4,5};
-    print(a);
+    sort(v.begin(),v.end(),greater<int>{});
+    print(v);
 }
 
 int main()
@@ -37,9 +38,9 @@ $ ./test
 3
 4
 5
-1
-2
-3
-4
 5
+4
+3
+2
+1
 *************************************/
