@@ -1,52 +1,72 @@
-// Item 26: Avoid overloading on universal references.
-// Item 27: Familiarize yourself with alternatives to
-//          overloading on universal references.
-//  42 SPECIFIC WAYS TO IMPROVE YOUR USE OF C++11 AND C++14
-//  by Scott Meyers
+// The C++ Programming Language
+// Fourth Edition
+// Bjarne Stroustrup
+// 32.4.1 for_each()
+// f=for_each(b,e ,f) (§iso.25.2.4) Do f(x) for each x in [ b : e ); return f
 
-//#include "widget.h"
+//I was interested why you need return value - so I read following blog
+//http://xenon.arcticus.com/c-morsels-std-for-each-functors-member-variables
 
-#include <chrono>
-#include <string>
-#include <set>
-void log (std::chrono::time_point<std::chrono::system_clock> , std::string ) {
 
-}
 
-std::string nameFromIdx(int idx)
+#include <vector>
+#include <iostream>
+#include <algorithm>
+
+class Contained
 {
-    if(idx == 0) return "initial";
-    return "final";
-}
+public:
+    Contained() : _shouldBeCounted(0)
+    {
 
+    }
+    bool getShouldBeCounted(void) const
+    {
+        return(_shouldBeCounted);
+    }
+    void setShouldBeCounted(bool newShouldBeCounted)
+    {
+        _shouldBeCounted = newShouldBeCounted;
+    }
+private:
+    bool _shouldBeCounted;
+};
 
-template<typename T>
-void logAndAddImpl(T&& name, std::false_type)
+class CountingFunctor
 {
-    static std::multiset<std::string> names;
-    auto now = std::chrono::system_clock::now();
-    log(now, "logAndAdd");
-    names.emplace(std::forward<T>(name));
-}
-void logAndAddImpl(int idx, std::true_type);
+public:
+    CountingFunctor() : _counter(0)
+    {
 
-template<typename T>
-void logAndAdd(T&& name)
-{
-    logAndAddImpl(
-        std::forward<T>(name),
-        std::is_integral<std::remove_reference_t<T>>()
-    );
-}
-void logAndAddImpl(int idx, std::true_type)
-{
-    logAndAdd(nameFromIdx(idx));
-}
+    }
+    int getCounter(void) const
+    {
+        return(_counter);
+    }
+    void operator () (Contained item)
+    {
+        if(item.getShouldBeCounted()) _counter++;
+    }
+private:
+    int _counter;
+};
 
-int main() {
-    std::string petName("Darla");
-    logAndAdd(petName);     // pass lvalue std::string
-    logAndAdd(std::string("Persephone")); // pass rvalue std::string
-    logAndAdd("Patty Dog");
+int main(void)
+{
+    std::vector<Contained> v(10);
+    for(std::vector<Contained>::size_type i=0; i<v.size(); ++i) v[i].setShouldBeCounted(i%2==0);
+
+    CountingFunctor f1;
+    CountingFunctor f2=std::for_each(v.begin(),v.end(),f1);
+    std::cout << "f1.getCounter()==" << f1.getCounter() << std::endl;
+    std::cout << "f2.getCounter()==" << f2.getCounter() << std::endl;
+
     return 0;
 }
+
+/******************
+ Output:
+ $ ./test
+f1.getCounter()==0
+f2.getCounter()==5
+*******************/
