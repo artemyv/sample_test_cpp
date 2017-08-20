@@ -1,35 +1,48 @@
 // The C++ Programming Language
 // Fourth Edition
 // Bjarne Stroustrup
-// 32.4.3 count() (§iso.25.2.9)
-// x=count(b,e,v) x is the number of elements ∗p in [ b : e ) such that v==∗p
-// x=count_if(b,e,v,f) x is the number of elements ∗p in [ b : e ) such that f(∗p)
-
-//looks like we have a typo here - see sample below
-//the second line shoudl be
-// x=count_if(b,e,f) x is the number of elements ∗p in [ b : e ) such that f(∗p)
-
-//sample also has to be modified to replace the direct call to isspace with lambda which 
-//casts the passed parameter to unsigned char
+// 32.4.4 find() (§iso.25.2.5)
+// p=find(b,e,v) points to the first element in [ b : e ) such that ∗p==v
+// p=find_if(b,e,f) points to the first element in [ b : e ) such that f(∗p)
+// p=find_if_not(b,e,f) p points to the first element in [ b : e ) such that !f(∗p)
+// p=find_first_of(b,e ,b2,e2) p points to the first element in [ b : e ) such that ∗p==∗q for some q in [ b2 : e2 )
+// p=find_first_of(b,e ,b2,e2,f) p points to the first element in [ b : e ) such that f(∗p,∗q) for some q in [ b2 : e2 )
+// p=adjacent_find(b,e) p points to the first element in [ b : e ) such that ∗p==∗(p+1)
+// p=adjacent_find(b,e,f) p points to the first element in [ b : e ) such that f(∗p,∗(p+1))
+// p=find_end(b,e,b2,e2) p points to the last ∗p in [ b : e ) such that ∗p==∗q for an element ∗q in [ b2 : e2 )
+// p=find_end( b,e,b2,e2,f) p points to the last ∗p in [ b : e ) such that f(∗p,∗q) for an element ∗q in [ b2 : e2 )
 
 #include <string>
 #include <algorithm>
 #include <iostream>
 #include <cctype>
-using namespace std;
-
-auto f(const string& s)
+void f(const std::string& s)
 {
-    auto n_space = count(s.begin(),s.end(),' ');
-    auto n_whitespace = count_if(s.begin(),s.end(),[](unsigned char c){ return std::isspace(c); });
-    return make_pair(n_space, n_whitespace);
+    auto p_space = find(s.begin(),s.end(),' ');
+
+    std::cout << "Space is at " << std::distance(s.begin(),p_space) << '\n';
+    auto p_space2 = find(s.rbegin(),s.rend(),' ');
+    std::cout << "Last Space is at " << std::distance(p_space2,s.rend())-1 << '\n';
+    auto p_whitespace = find_if(s.begin(),s.end(), isspace);
+    std::cout << "Witespace is at " << std::distance(s.begin(),p_whitespace)  << '\n';
+
+    //std::isspace will not work... 
+    auto p_whitespace2 = find_if(s.rbegin(),s.rend(), isspace);
+    std::cout << "Last Witespace is at " << std::distance(p_whitespace2,s.rend())-1 << '\n';
+
+
+    std::vector<char> seps{',','.'};
+
+    auto p_sep = find_first_of(s.begin(),s.end(),seps.begin(),seps.end());
+    std::cout << "First Separator is at " << std::distance(s.begin(),p_sep)  << '\n';
+    auto word = find_if_not(s.begin(),s.end(),isalpha);
+    std::cout << "Word ends at " << std::distance(s.begin(),word) << '\n';
 }
 
 int main()
 {
-    std::string test("This is sample.\n");
-    auto res = f(test);
-    std::cout << "String \"" << test << "\" contains " << res.first << " spaces and " << res.second << " whitespaces.\n";
+    std::string test("test 5 7,9.b\n");
+    f(test);
     return 0;
 
 }
@@ -37,6 +50,10 @@ int main()
 /*************************************
 Output
 $ ./test
-String "This is sample.
-" contains 2 spaces and 3 whitespaces.
+Space is at 4
+Last Space is at 6
+Witespace is at 4
+Last Witespace is at 12
+First Separator is at 8
+Word ends at 4
 *************************************/
