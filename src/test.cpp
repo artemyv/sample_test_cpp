@@ -1,46 +1,27 @@
-// The C++ Programming Language
-// Fourth Edition
-// Bjarne Stroustrup
-// 33.4 Function Objects
+// https://stackoverflow.com/questions/45784065/calling-constexpr-function-in-enable-if-t
+//works in gcc - shoudl not work in VS
 
 #include <iostream>
-#include <iterator>
-#include <vector>
-#include <algorithm>
+#include <type_traits>
 
-using namespace std;
-template<typename Cont>
-void print(Cont& c)
-{
-    for(auto p=begin(c); p!=end(c); ++p)
-        cout << *p << '\n';
-}
-void f()
-{
-    vector<int> v {1,2,3,4,5};
-    print(v);
-    sort(v.begin(),v.end(),greater<int>{});
-    print(v);
-}
+template <typename T, typename Enable = void>
+struct A;
 
-int main()
-{
-    f();
-    return 0;
+template <typename T>
+constexpr bool f() { return true; }
+
+template <typename T>
+struct A<T, std::enable_if_t<f<T>()>> {};
+
+int main() {
+  A<int> f;
+
+  std::cout << sizeof(f) << '\n';
 
 }
 
 /*************************************
 Output
 $ ./test
-1
-2
-3
-4
-5
-5
-4
-3
-2
 1
 *************************************/
