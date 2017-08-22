@@ -8,8 +8,7 @@ using namespace std;
 
 int main() {
     ios_base::sync_with_stdio(false);
-    cin.imbue(locale("en_US.UTF-8"));
-    cout.imbue(locale("en_US.UTF-8"));
+    locale::global(locale("en_US.UTF-8"));
 
     string s;
     string t(" la Polynésie française");
