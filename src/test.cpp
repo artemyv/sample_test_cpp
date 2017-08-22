@@ -1,44 +1,27 @@
-// https://stackoverflow.com/questions/45783833/c-functor-template-for-class-member-functions/45785878#45785878
-
-template<class>
-struct Functor;
-
-template<class TReturn, class... TParameter>
-struct Functor<TReturn(TParameter...)> {
-    TReturn (*ptr)(void*, TParameter...);
-    void     *object;
-
-    template<class TObject, TReturn(TObject::*TMemberFunction)(TParameter...)>
-    static TReturn memberCaller(void *obj, TParameter... params) {
-        TObject *c = static_cast<TObject*>(obj);
-        return (c->*TMemberFunction)(params...);
-    }
-
-    TReturn operator()(TParameter... params) {
-        return ptr(object, params...);
-    }
-};
+// https://stackoverflow.com/questions/3207704/how-can-i-cin-and-cout-some-unicode-text
 
 #include <iostream>
-class Test {
-public:
-    void func(int a) {
-        std::cout << a << std::endl;
-    }
-};
-int main()
-{
-    Functor<void(int)> f;
-    Test               t;
-    
-    f.object = &t;
-    f.ptr    = &Functor<void(int)>::memberCaller<Test, &Test::func>;
-    
-    f(100);
-    
+#include <locale>
+#include <string>
+
+using namespace std;
+
+int main() {
+    ios_base::sync_with_stdio(false);
+    cin.imbue(locale("en_US.UTF-8"));
+    cout.imbue(locale("en_US.UTF-8"));
+
+    string s;
+    string t(" la Polynésie française");
+
+    cin >> s;
+    cout << s << t << endl;
+    return 0;
 }
-/*************************************
+
+/*********************************
 Output
 $ ./test
-100
-*************************************/
+ntcтестמאבמ
+ntcтестמאבמ la Polynésie française
+*********************************/
