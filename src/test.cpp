@@ -1,61 +1,45 @@
-#include <Windows.h>
+//https://stackoverflow.com/questions/45812887/getting-the-1st-input-type-of-a-function/45814006#45814006
+//my accepted response
 
-#include <iostream>
-#include <string>
 #include <vector>
-#include <algorithm>
-#include <ostream>
-#include <iterator>
 
-using namespace std;
+struct List {
+};
 
-vector<wstring> locals;
-
-BOOL CALLBACK MyFuncLocaleEx(LPWSTR pStr, DWORD dwFlags, LPARAM lparam)
+struct Data {
+    void* ptr_value;
+};
+struct Node {
+    Node* next;
+    Data data;
+};
+Node* list_head(const List*const)
 {
-    locals.push_back(pStr);
-    return TRUE;
+    return nullptr;
 }
 
-int _tmain(int argc, _TCHAR* argv[])
+template<typename T, typename inputtype,  typename ...Params>
+using Fn = T (*) (inputtype*, Params...);
+
+template<typename T, typename inputtype,  typename ...Params, typename = Fn<T,inputtype, Params...>>
+inline auto ListMap(List* polymorphic_list, Fn<T,inputtype, Params...> f,Params&&... params) {
+
+    std::vector<T> res;
+    for (auto lcell = list_head(polymorphic_list); lcell; lcell = lcell->next) {
+        const auto v = lcell->data.ptr_value;
+        inputtype* in = static_cast<inputtype*>(v);
+        res.emplace_back(std::move(f(in, std::forward<Params>(params)...)));
+    }
+    return res;
+}
+
+int f(void*,int& x)
 {
-    EnumSystemLocalesEx(MyFuncLocaleEx, LOCALE_ALL, NULL, NULL);
-
-    for (vector<wstring>::const_iterator str = locals.begin(); str != locals.end(); ++str)
-        wcout << *str << endl;
-
-    wcout << "Total " << locals.size() << " locals found." << endl;
-
-    return 0;
+    return x;
+}
+int main()
+{
+    int x = 1;
+    auto res = ListMap(new List(),f,x);
 }
 
-#if 0
-
-// https://stackoverflow.com/questions/3207704/how-can-i-cin-and-cout-some-unicode-text
-
-#include <iostream>
-#include <locale>
-#include <string>
-
-using namespace std;
-
-int main() {
-    ios_base::sync_with_stdio(false);
-    locale::global(locale("en_US.UTF-8"));
-
-    string s;
-    string t(" la Polynésie française");
-
-    cin >> s;
-    cout << s << t << endl;
-    return 0;
-}
-
-/*********************************
-Output
-$ ./test
-ntcтестמאבמ
-ntcтестמאבמ la Polynésie française
-*********************************/
-
-#endif

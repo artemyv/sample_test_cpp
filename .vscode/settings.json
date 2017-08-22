@@ -3,6 +3,7 @@
         "type_traits": "cpp",
         "*.tcc": "cpp",
         "chrono": "cpp",
-        "limits": "cpp"
+        "limits": "cpp",
+        "iostream": "cpp"
     }
 }
