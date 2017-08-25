@@ -1,45 +1,38 @@
-//https://stackoverflow.com/questions/45812887/getting-the-1st-input-type-of-a-function/45814006#45814006
-//my accepted response
+//https://stackoverflow.com/questions/45877110/polymorphism-with-shared-ptr-of-base-class-with-3-level-inheritance
+#include <iostream>
+#include <memory>
 
-#include <vector>
-
-struct List {
+class Base {
+public:
+    virtual void func() = 0;
 };
 
-struct Data {
-    void* ptr_value;
+
+class Derived : public Base {
+public:
+    void func() {std::cout << "Derived\n"; }
 };
-struct Node {
-    Node* next;
-    Data data;
+
+class DerivedDerived : public Derived {
+public:
+    void func() {std::cout << "DerivedDerived\n";} //Overrides func() from Derived
 };
-Node* list_head(const List*const)
-{
-    return nullptr;
+void g(std::shared_ptr<Base> s) {
+    s->func();
 }
 
-template<typename T, typename inputtype,  typename ...Params>
-using Fn = T (*) (inputtype*, Params...);
-
-template<typename T, typename inputtype,  typename ...Params, typename = Fn<T,inputtype, Params...>>
-inline auto ListMap(List* polymorphic_list, Fn<T,inputtype, Params...> f,Params&&... params) {
-
-    std::vector<T> res;
-    for (auto lcell = list_head(polymorphic_list); lcell; lcell = lcell->next) {
-        const auto v = lcell->data.ptr_value;
-        inputtype* in = static_cast<inputtype*>(v);
-        res.emplace_back(std::move(f(in, std::forward<Params>(params)...)));
-    }
-    return res;
-}
-
-int f(void*,int& x)
-{
-    return x;
-}
 int main()
 {
-    int x = 1;
-    auto res = ListMap(new List(),f,x);
+    std::shared_ptr<Base> s1 = std::make_shared<Derived>();
+    std::shared_ptr<Base> s2 = std::make_shared<DerivedDerived>();
+    g(s1); //func() of Derived Class called
+    g(s2); //func() of Derived Class called, func() of DerivedDerived Class needed to
+    return 0;
 }
 
+/***************
+Output:
+$ ./test
+Derived
+DerivedDerived
+***************/
