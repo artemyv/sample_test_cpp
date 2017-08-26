@@ -1,44 +1,49 @@
-//https://stackoverflow.com/questions/45892146/max-and-min-sum#comment78743531_45892146
+#include <vector>
+#include <iostream>
 
-#include<iostream>
-using namespace std;
+using std::cout;
+
+int cnt = 0;
+class foo{
+public:
+    //constructor
+    foo() : ucnt(++cnt) { cout << ucnt << "\tdefault\n" ; }
+    foo(const foo&) : ucnt(++cnt) { cout << ucnt << "\tcopy\n" ; }
+    foo(foo&&) noexcept : ucnt(++cnt)  { cout << ucnt << "\tmove\n" ; }
+    ~foo() { cout << ucnt << "\tdestroyed\n" ; }
+    int ucnt;
+};
+
 int main()
 {
-    long a[5],max=0,min=10000,sum;
-    int i,j;
-    for(i=0; i<5; i++)
-        cin>>a[i];
-
-    for(j=0; j<5; j++)
-    {
-        sum=0;
-        for(i=0; i<5; i++)
-        {
-
-            if(i!=j)
-            {
-                sum=sum+a[i];
-            }
-        }
-        if(sum>max)
-            max=sum;
-        if(sum< min)
-            min=sum;
-    }
-    cout<<min<<" "<<max;
+    std::vector<foo> vf = {foo()};
+    cout << vf.size() << " 1: " << vf[0].ucnt << '\n';
+    vf.reserve(3);
+    cout << vf.size() << " 2: " << vf[0].ucnt << '\n';
+    vf.push_back(foo());
+    cout << vf.size() << " 3: " << vf[0].ucnt << " " << vf[1].ucnt << '\n';
+    vf.emplace_back();
+    cout << vf.size() << " 4: " << vf[0].ucnt << " " << vf[1].ucnt << " " << vf[2].ucnt << '\n';
     return 0;
 }
 
-/*******************
-Answer
-
-It looks like you are having overflow issues. The max value for long type is 2,147,483,647. Adding up all the values you entered gives 3,001,208,382. Try changing
-
-long a[5], max=0, min=10000, sum; 
-
-to
-
-double a[5], max=0, min=10000, sum; 
-
-and see if you get correct values.
-*/
+/***************
+Output
+$ ./test
+1       default
+2       copy
+1       destroyed
+1 1: 2
+3       move
+2       destroyed
+1 2: 3
+4       default
+5       move
+4       destroyed
+2 3: 3 5
+6       default
+3 4: 3 5 6
+3       destroyed
+5       destroyed
+6       destroyed
+*****************/
