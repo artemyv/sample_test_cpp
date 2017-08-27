@@ -1,49 +1,43 @@
-#include <vector>
+// https://stackoverflow.com/questions/45902704/c11-copying-just-one-field-into-a-vector
+
 #include <iostream>
+#include <vector>
+#include <algorithm>
+#include <functional>
 
-using std::cout;
 
-int cnt = 0;
-class foo{
-public:
-    //constructor
-    foo() : ucnt(++cnt) { cout << ucnt << "\tdefault\n" ; }
-    foo(const foo&) : ucnt(++cnt) { cout << ucnt << "\tcopy\n" ; }
-    foo(foo&&) noexcept : ucnt(++cnt)  { cout << ucnt << "\tmove\n" ; }
-    ~foo() { cout << ucnt << "\tdestroyed\n" ; }
-    int ucnt;
-};
+struct Foo {
+    double a;
+    int b;
+ };
+
+ void f(const std::initializer_list<Foo> &args)
+ {
+    std::vector<int> result;
+    std::vector<int> result2;
+    
+    result.reserve(sizeof(args));
+    result2.reserve(sizeof(args));
+    std::transform(std::begin(args), std::end(args), std::back_inserter(result), [] (const Foo & foo) { return foo.b; });
+    
+    std::transform(std::begin(args), std::end(args), std::back_inserter(result2), std::mem_fn(&Foo::b));
+    
+    std::cout << "res1:";
+    for(auto i:result){
+        std::cout << ' ' << i;
+    }
+    std::cout << "\nres2:";
+    for(auto i:result2){
+        std::cout << ' ' << i;
+    }
+    std::cout << "\n";
+}
 
 int main()
 {
-    std::vector<foo> vf = {foo()};
-    cout << vf.size() << " 1: " << vf[0].ucnt << '\n';
-    vf.reserve(3);
-    cout << vf.size() << " 2: " << vf[0].ucnt << '\n';
-    vf.push_back(foo());
-    cout << vf.size() << " 3: " << vf[0].ucnt << " " << vf[1].ucnt << '\n';
-    vf.emplace_back();
-    cout << vf.size() << " 4: " << vf[0].ucnt << " " << vf[1].ucnt << " " << vf[2].ucnt << '\n';
+    Foo a1 {0.5,1};
+    Foo a2 {0.5,2};
+    Foo a3 {0.5,3};
+    f({a1,a2,a3});
     return 0;
 }
-
-/***************
-Output
-$ ./test
-1       default
-2       copy
-1       destroyed
-1 1: 2
-3       move
-2       destroyed
-1 2: 3
-4       default
-5       move
-4       destroyed
-2 3: 3 5
-6       default
-3 4: 3 5 6
-3       destroyed
-5       destroyed
-6       destroyed
-*****************/

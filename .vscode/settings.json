@@ -4,6 +4,8 @@
         "*.tcc": "cpp",
         "chrono": "cpp",
         "limits": "cpp",
-        "iostream": "cpp"
+        "iostream": "cpp",
+        "slist": "cpp",
+        "functional": "cpp"
     }
 }
