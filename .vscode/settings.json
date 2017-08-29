@@ -6,6 +6,8 @@
         "limits": "cpp",
         "iostream": "cpp",
         "slist": "cpp",
-        "functional": "cpp"
+        "functional": "cpp",
+        "cstring": "cpp",
+        "array": "cpp"
     }
 }

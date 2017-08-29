@@ -1,43 +1,37 @@
-// https://stackoverflow.com/questions/45902704/c11-copying-just-one-field-into-a-vector
+//https://stackoverflow.com/questions/45930117/reading-from-a-file-c
 
-#include <iostream>
-#include <vector>
-#include <algorithm>
-#include <functional>
+    #include <iostream>
+    #include <fstream>
+    #include <string>
+    #include <vector>
 
+    std::vector<std::string> readfile(std::istream& infile)
+    {
+        //creating array and populating with list of words
+        std::string word;
+        std::vector<std::string> arr;
 
-struct Foo {
-    double a;
-    int b;
- };
+        while (getline(infile, word))
+            arr.push_back(std::move(word));
 
- void f(const std::initializer_list<Foo> &args)
- {
-    std::vector<int> result;
-    std::vector<int> result2;
-    
-    result.reserve(sizeof(args));
-    result2.reserve(sizeof(args));
-    std::transform(std::begin(args), std::end(args), std::back_inserter(result), [] (const Foo & foo) { return foo.b; });
-    
-    std::transform(std::begin(args), std::end(args), std::back_inserter(result2), std::mem_fn(&Foo::b));
-    
-    std::cout << "res1:";
-    for(auto i:result){
-        std::cout << ' ' << i;
+        return arr;
     }
-    std::cout << "\nres2:";
-    for(auto i:result2){
-        std::cout << ' ' << i;
-    }
-    std::cout << "\n";
-}
+    int main() {
 
-int main()
-{
-    Foo a1 {0.5,1};
-    Foo a2 {0.5,2};
-    Foo a3 {0.5,3};
-    f({a1,a2,a3});
-    return 0;
-}
+        std::string filename{"test.txt"};
+
+        std::ifstream infile(filename);
+        if (!infile)
+        {
+            std::cout << "File could not be found!\n";
+            return -1;
+        }
+
+        auto res = readfile(infile);
+
+        //testing
+        for(auto& s:res)
+            std::cout << s << '\n';
+
+        return 0;
+    }
