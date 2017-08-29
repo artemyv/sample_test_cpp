@@ -1,18 +1,10 @@
-//https://stackoverflow.com/questions/45944116/how-to-get-a-c-program-built-in-visual-studio-code-to-accept-user-input
-#include<iostream>
-#include<string>
+//https://stackoverflow.com/questions/45946033/c-reading-a-character-is-incorrect
 
-using namespace std;
+#include<cstdio>
 
 int main() {
 
-    string name = "";
-
-    cout << "HELLO WORLD\n\n";
-
-    cin >> name;
-
-    cout << "Hello " << name << '\n';
-    
+    char ch = static_cast<char>(0x92);
+    printf("%c - %x/%x\n", ch,ch,static_cast<unsigned char>(ch));
     return 0;
 }
