@@ -1,79 +1,82 @@
-//Exceptionaal C++. Sample2. Case insensitive string
+//https://stackoverflow.com/questions/45964077/thread-inside-a-class-with-member-function-from-another-class
 
-#include <string>
 #include <iostream>
-#include <cstring>
+#include <thread>
+#include <chrono>
+#include <ctime>
+#include <iomanip>
+#include <mutex>
 
-struct ci_char_traits : public std::char_traits<char>
-// just inherit all the other functions
-//  that we don't need to replace
+using namespace std::literals::chrono_literals;
+std::mutex mtx;
+
+void putime(std::ostream& s){
+    auto t = std::chrono::high_resolution_clock::now();
+    auto dur =  t.time_since_epoch();
+    auto int_ms = std::chrono::duration_cast<std::chrono::microseconds>(dur);
+    auto ns = int_ms.count();
+    s << ns/1000000 << "." << std::setfill('0') << std::setw(6) << ns%1000000 << "s: ";
+}
+
+void log(std::string slog){
+    {
+        std::hash<std::thread::id> hasher;
+        
+        std::lock_guard<std::mutex> g {mtx};
+        putime(std::cout);
+        std::cout << slog << ' ' << hasher(std::this_thread::get_id()) %100 << '\n' ;
+    }
+}
+class Boo
 {
-    static bool eq( char c1, char c2 )
+public:
+    void run()
     {
-        return toupper(c1) == toupper(c2);
-    }
-    static bool lt( char c1, char c2 )
-    {
-        return toupper(c1) <  toupper(c2);
-    }
-    static int compare( const char* s1,
-                        const char* s2,
-                        size_t n )
-    {
-        while(n>0){
-            if(!eq(*s1, *s2))
-                return *s1 - *s2;
-            if(*s1 == 0)
-                return 0;
-            s1++;
-            s2++;
-            n--;
-        }
-        return 0;
-    }
-// if available on your platform,
-//  otherwise you can roll your own
-    static const char*
-    find( const char* s, int n, char a )
-    {
-        while( n-- > 0 && toupper(*s) != toupper(a) )
-        {
-            ++s;
-        }
-        return n >= 0 ? s : 0;
+        log( "Boo::run started");
+
+        std::this_thread::sleep_for(5s);
+
+        log( "Boo::run finished");
     }
 };
 
-typedef std::basic_string<char, ci_char_traits> ci_string; 
+class Foo
+{
+public:
+    void run()
+    {
+        log( "Foo::run started");
 
+        t1 = std::thread(&Boo::run,boo);   // threads already default constructed
+        t2 = std::thread(&Foo::user,this); // so need to *assign* them
+
+        log( "Foo::run finihsed");
+    }
+    void user()
+    {
+        log( "Foo::user started");
+        
+        std::this_thread::sleep_for(5s);
+
+        log( "Foo::user finihsed");
+    }
+
+    ~Foo() {
+        t1.join();
+        t2.join();
+        log( "Foo::~Foo finihsed");
+    }
+private:
+    std::thread t1;
+    std::thread t2;
+    Boo boo;
+};
 int main()
 {
-    ci_string s( "AbCdE" ); 
-    // case insensitive
-    //
-    if( s == "abcde" )
-        std::cout << "1 good\n";
-    else
-        std::cout << "1 bad\n";
+    log( "main started");
     
-    if( s == "ABCDE" )
-        std::cout << "2 good\n";
-    else
-        std::cout << "2 bad\n";
-    // still case-preserving, of course
-    //
-    if( strcmp( s.c_str(), "AbCdE" ) == 0 )
-        std::cout << "3 good\n";
-    else
-        std::cout << "3 bad\n";
-    if( strcmp( s.c_str(), "abcde" ) != 0 )
-        std::cout << "4 good\n";
-    else
-        std::cout << "4 bad\n";
+    Foo foo;
+    foo.run();
 
-    if( s < "ABCDF" )
-        std::cout << "5 good\n";
-    else
-        std::cout << "5 bad\n";
-
+    log( "main finihsed");
 }
