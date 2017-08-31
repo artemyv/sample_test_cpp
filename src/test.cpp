@@ -1,40 +1,53 @@
+//Exceptional C++ Item 21 sample - fixed (only compiler catched errors)
 
-//Exceptional C++ Item19 sample
-
-#include <string>
-#include <memory>
 #include <iostream>
-
-std::unique_ptr<std::string> GetEmpl(std::string title) //copy constructor can throw
+#include <complex>
+using namespace std;
+class Base
 {
-    //constructor from const char*
-    //operator +
-    //copy constructor
-    std::unique_ptr<std::string> res = std::make_unique<std::string>(title + " name");
-
-
-    //constructor from const char*
-    //operator ==
-    if(title == "CEO") {
-        //constructor from const char*
-        //operator +
-        std::string msg = *res + " overpaid\n";
-        //operator <<
-        std::cout <<  msg;
-    }
-
-    //move semantics - cannot throw
-    return res;
+public:
+    virtual void f( int );
+    virtual void f( double );
+    virtual void g( int i = 10 );
+    virtual ~Base() {}
+};
+void Base::f( int )
+{
+    cout << "Base::f(int)" << endl;
 }
-
+void Base::f( double )
+{
+    cout << "Base::f(double)" << endl;
+}
+void Base::g( int i )
+{
+    cout << i << endl;
+}
+class Derived: public Base
+{
+public:
+    using Base::f;
+    void f( complex<double> );
+    void g( int i = 20 );
+};
+void Derived::f( complex<double> )
+{
+    cout << "Derived::f(complex)" << endl;
+}
+void Derived::g( int i )
+{
+    cout << "Derived::g() " << i << endl;
+}
 int main()
 {
-    //can throw before and during call
-    //not after the call when assigning result to res
-    auto res = GetEmpl("CEO");
-
-    //operator <<
-    std::cout << *res << '\n';
-
-    return 0;
+    Base    b;
+    Derived d;
+    Base*   pb = new Derived;
+    b.f(1.0);
+    d.f(1.0);
+    pb->f(1.0);
+    b.g();
+    d.g();
+    pb->g();
+    delete pb;
 }
