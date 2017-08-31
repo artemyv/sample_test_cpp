@@ -1,21 +1,24 @@
 
+//Exceptional C++ Item19 sample
+
 #include <string>
-#include <stack.h>
+#include <memory>
 #include <iostream>
+
+std::unique_ptr<std::string> GetEmpl(std::string title)
+{
+    std::unique_ptr<std::string> res = std::make_unique<std::string>(title + " name");
+    if(title == "CEO"){
+        std::string msg = *res + " overpaid\n";
+        std::cout <<  msg;
+    }
+    return res;
+}
 
 int main()
 {
-    vart::Stack<std::string> test;
-
-    test.Push("test");
-
-    vart::Stack<std::string> test2(test);
-    vart::Stack<std::string> test3;
-    test3 = test2;
-    
-    auto r = test.Top();
-    test.Pop();
-    std::cout << r << '\n';
+    auto res = GetEmpl("CEO");
+    std::cout << *res << '\n';
 
     return 0;
 }
