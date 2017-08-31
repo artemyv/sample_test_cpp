@@ -1,50 +1,21 @@
-//https://stackoverflow.com/questions/45973779/creating-an-array-of-char-based-on-user-input
 
-    #include <iostream>
-    #include <string>
-    #include <algorithm>
-    #include <cctype>
+#include <string>
+#include <stack.h>
+#include <iostream>
 
-    //pass parameter by value so changes to wordA will not modify original string
-    bool checkPalindrome(std::string wordA) {
+int main()
+{
+    vart::Stack<std::string> test;
 
-        //removing whitespaces and punctuation
-        wordA.erase (remove_if(wordA.begin(), wordA.end(), [](unsigned char c) {
-            return std::isspace(c) || std::ispunct(c);
-        }), wordA.end());
+    test.Push("test");
 
-        //changing the string to lower case
-        std::transform(wordA.begin(), wordA.end(), wordA.begin(),::tolower);
+    vart::Stack<std::string> test2(test);
+    vart::Stack<std::string> test3;
+    test3 = test2;
+    
+    auto r = test.Top();
+    test.Pop();
+    std::cout << r << '\n';
 
-        //creating copy of the string
-        auto wordB = wordA;
-
-        //function name is self-explanary
-        std::reverse(wordB.begin(), wordB.end());
-
-        return (wordB == wordA);
-    }
-
-    int main()
-    {
-        std::cout << "The word is:\n";
-
-        std::string word;
-        getline(std::cin, word);
-
-        if(checkPalindrome(word))
-            std::cout << "It is a palindrome\n";
-        else
-            std::cout << "It is NOT a palindrome\n";
-
-        return 0;
-    }
-
-    /*************
-    Output
-    $ ./test
-    The word is:
-    A car, a man, a maraca.
-    It is a palindrome
-
-    */
+    return 0;
+}
