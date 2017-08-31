@@ -1,40 +1,50 @@
-//https://stackoverflow.com/questions/45967321/a-class-to-be-accessed-by-another-class-only/45967426#45967426
+//https://stackoverflow.com/questions/45973779/creating-an-array-of-char-based-on-user-input
 
-#include <iostream>
+    #include <iostream>
+    #include <string>
+    #include <algorithm>
+    #include <cctype>
 
-class B
-{
-    class A
+    //pass parameter by value so changes to wordA will not modify original string
+    bool checkPalindrome(std::string wordA) {
+
+        //removing whitespaces and punctuation
+        wordA.erase (remove_if(wordA.begin(), wordA.end(), [](unsigned char c) {
+            return std::isspace(c) || std::ispunct(c);
+        }), wordA.end());
+
+        //changing the string to lower case
+        std::transform(wordA.begin(), wordA.end(), wordA.begin(),::tolower);
+
+        //creating copy of the string
+        auto wordB = wordA;
+
+        //function name is self-explanary
+        std::reverse(wordB.begin(), wordB.end());
+
+        return (wordB == wordA);
+    }
+
+    int main()
     {
-    private:
-        static int x;
-    public:
-        static int y;
-        static int getX() {
-            return A::x;
-        }
-        static void setX(int z) {
-            A::x = z;
-        }
-    };
+        std::cout << "The word is:\n";
 
-public:
-    void showX() {
-        A::setX(9) ;
-        std::cout << A::getX() << std::endl;
+        std::string word;
+        getline(std::cin, word);
+
+        if(checkPalindrome(word))
+            std::cout << "It is a palindrome\n";
+        else
+            std::cout << "It is NOT a palindrome\n";
+
+        return 0;
     }
-    void showY() {
-        A::y = 8;
-        std::cout << A::y << std::endl;
-    }
-};
 
-int B::A::x = 0;
-int B::A::y = 0;
+    /*************
+    Output
+    $ ./test
+    The word is:
+    A car, a man, a maraca.
+    It is a palindrome
 
-int main()
-{
-    B b1;
-    b1.showX();
-    b1.showY();
-}
+    */
