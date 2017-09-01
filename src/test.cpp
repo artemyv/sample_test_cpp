@@ -1,44 +1,19 @@
-//https://stackoverflow.com/questions/46003624/exception-handling-in-c-4
+//https://stackoverflow.com/questions/46006690/how-to-use-variadic-function-with-strings-without-using-templates
 
-#include<iostream>
-using namespace std;
+//sample using initializer list
+#include <string>
+#include <iostream>
 
-class A {
-public:
-    A() { cout << "default\n"; }
-    A(const A&) { cout << "copy\n"; }
-    A(A&&) { cout << "move\n"; }
-    ~A() { cout << "~\n"; }
-};
-
-int main()
+void update( std::initializer_list< std::string > args )
 {
-    try {
-       A obj;
-       throw obj;
-    } catch(const A& a) {
-       cout<<"Caught\n";
+    std::string prefix = "";
+    for(auto v:args){
+        std::cout << prefix << v;
+        prefix = ", ";
     }
+    std::cout << '\n';
 }
 
-/*****************
-Output 
-$ ./test
-default
-move
-~
-Caught
-~
-*/
-
-/*****************
-Output when caught by value instead
-$ ./test
-default
-move
-~
-copy
-Caught
-~
-~
-*/
+int main() {
+    update({"1", "2", "3"});
+}
