@@ -1,53 +1,44 @@
-//Exceptional C++ Item 21 sample - fixed (only compiler catched errors)
+//https://stackoverflow.com/questions/46003624/exception-handling-in-c-4
 
-#include <iostream>
-#include <complex>
+#include<iostream>
 using namespace std;
-class Base
-{
+
+class A {
 public:
-    virtual void f( int );
-    virtual void f( double );
-    virtual void g( int i = 10 );
-    virtual ~Base() {}
+    A() { cout << "default\n"; }
+    A(const A&) { cout << "copy\n"; }
+    A(A&&) { cout << "move\n"; }
+    ~A() { cout << "~\n"; }
 };
-void Base::f( int )
-{
-    cout << "Base::f(int)" << endl;
-}
-void Base::f( double )
-{
-    cout << "Base::f(double)" << endl;
-}
-void Base::g( int i )
-{
-    cout << i << endl;
-}
-class Derived: public Base
-{
-public:
-    using Base::f;
-    void f( complex<double> );
-    void g( int i = 20 );
-};
-void Derived::f( complex<double> )
-{
-    cout << "Derived::f(complex)" << endl;
-}
-void Derived::g( int i )
-{
-    cout << "Derived::g() " << i << endl;
-}
+
 int main()
 {
-    Base    b;
-    Derived d;
-    Base*   pb = new Derived;
-    b.f(1.0);
-    d.f(1.0);
-    pb->f(1.0);
-    b.g();
-    d.g();
-    pb->g();
-    delete pb;
+    try {
+       A obj;
+       throw obj;
+    } catch(const A& a) {
+       cout<<"Caught\n";
+    }
 }
+
+/*****************
+Output 
+$ ./test
+default
+move
+~
+Caught
+~
+*/
+
+/*****************
+Output when caught by value instead
+$ ./test
+default
+move
+~
+copy
+Caught
+~
+~
+*/
