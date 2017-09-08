@@ -6,6 +6,11 @@
 #ifdef WIN32
 #include <io.h>
 #include <fcntl.h>
+
+//following define swithces from narrow to wide-char output
+// using narrow output on windows described in https://alfps.wordpress.com/2011/12/08/unicode-part-2-utf-8-stream-mode/
+// but I feel like it is too much work comparing to linux straight and forward way
+// so using wide output/input seems a lot easier on windows
 #define WIDE
 #endif
 
@@ -36,7 +41,7 @@ void initconsole()
 //windows version requires following pre-sets
 // 1. Store the source cpp file as UTF-8 BOM format before ccompiling
 // 2. Change the font in the command line to one suporting unicode gliphs
-//    
+//    Following answer worked for me https://stackoverflow.com/a/38694885/8491726
 
 //version for utf8 stdout
 template<class T>
@@ -73,7 +78,7 @@ int main()
 	initconsole();
 
 	//internal string always utf-8
-	std::string utf8 = u8"Testing unicode -- English -- Ελληνικά -- Español.";
+	std::string utf8 = u8"Testing unicode -- English -- 水 -- Ελληνικά -- Español -- Русский -- עיברית.";
 
 	//when writing to stdout - optionally convert
 	STDTCOUT << convert2stream<tstring>(utf8 + '\n');
@@ -90,3 +95,15 @@ int main()
 	STDTCOUT << convert2stream<tstring>(utf8 + '\n');
 
 }
+
+
+/*************
+Output
+$ ./test
+Testing unicode -- English -- 水 -- Ελληνικά -- Español -- Русский -- עיברית.
+Enter new string: hello привет שלום
+hello привет שלום
+
+
+Actually hebrew text in the console is show left to right direction instad of correct right to left 
+*/
