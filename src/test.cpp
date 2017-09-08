@@ -15,13 +15,20 @@ using tstring = std::wstring;
 using tstring = std::string;
 #endif
 
+void initconsole()
+{
+#ifdef WIN32
+	//on windows - switch to utf-16, on linus the utf-8 is default - no need to switch
+	_setmode(_fileno(stdout), _O_U16TEXT);
+	_setmode(_fileno(stdin), _O_U16TEXT);
+#endif
+}
 //version for utf8 stdout
 template<class T>
 T convert2stream(std::string source, typename std::enable_if<std::is_same<T, std::string>::value >::type* = 0)
 {
     return source;
 }
-
 
 //version for utf16 stdout
 template<class T>
@@ -48,11 +55,7 @@ std::string convertFromStream(T source, typename std::enable_if<std::is_same<T, 
 
 int main()
 {
-#ifdef WIN32
-	//on windows - switch to utf-16, on linus the utf-8 is default - no need to switch
-	_setmode(_fileno(stdout), _O_U16TEXT);
-	_setmode(_fileno(stdin), _O_U16TEXT);
-#endif
+	initconsole();
 
 	//internal string always utf-8
 	std::string utf8 = u8"Testing unicode -- English -- Ελληνικά -- Español.";
