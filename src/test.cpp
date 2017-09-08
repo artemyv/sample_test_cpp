@@ -50,7 +50,7 @@ template<class T>
 std::string convertFromStream(T source, typename std::enable_if<std::is_same<T, std::wstring>::value >::type* = 0)
 {
 	std::wstring_convert<std::codecvt_utf8<wchar_t>> cvt;
-	return cvt.from_bytes(source);
+	return cvt.to_bytes(source);
 }
 
 int main()
