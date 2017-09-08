@@ -43,7 +43,7 @@ int main()
 
 	std::string utf8 = u8"Testing unicode -- English -- Ελληνικά -- Español.";
 	STDTCOUT << convert2stream(utf8 + '\n');
-	STDTCOUT << convert2stream("Enter new string");
+	STDTCOUT << convert2stream("Enter new string: ");
 
 	tstring ws;
 	getline(STDTCIN, ws);
