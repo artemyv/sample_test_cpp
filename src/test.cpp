@@ -1,39 +1,54 @@
-#include <iostream>
+﻿#include <iostream>
 #include <codecvt>
 #include <locale>
-#
+#include <type_traits>
+
 #ifdef WIN32
 #include <io.h>
 #include <fcntl.h>
+#define STDTCOUT std::wcout
+#define STDTCIN std::wcin
+using tstring = std::wstring;
+#else
+#define STDTCOUT std::cout
+#define STDTCIN std::cin
+using tstring = std::string;
 #endif
+
+tstring convert2stream(std::string source) {
+#ifdef WIN32
+	std::wstring_convert<std::codecvt_utf8<wchar_t>> cvt;
+	return cvt.from_bytes(source);
+#else
+	return source;
+#endif
+}
+
+std::string convertFromStream(tstring source) {
+#ifdef WIN32
+	std::wstring_convert<std::codecvt_utf8<wchar_t>> cvt;
+	return cvt.to_bytes(source);
+#else
+	return source;
+#endif
+}
+
 
 int main()
 {
-    std::wstring_convert<std::codecvt_utf8<wchar_t>> cvt;
-
-    std::string utf8 = "Testing unicode -- English -- Ελληνικά -- Español.";
-    std::wstring ws = cvt.from_bytes(utf8);
-    
 #ifdef WIN32
 	_setmode(_fileno(stdout), _O_U16TEXT);
-#else
+	_setmode(_fileno(stdin), _O_U16TEXT);
 #endif
-    std::cout << utf8 << '\n';
-    std::wcout << ws << L'\n';
 
-    std::cout << "Enter new string (utf8): ";
-    getline(std::cin, utf8);
-    ws = std::wstring_convert<std::codecvt_utf8<wchar_t>>{}.from_bytes(utf8);
-    std::cout << utf8 << '\n';
-    std::wcout << ws << L'\n';
-    std::cin.clear();
-    
-    std::cout << "Enter new string (utf16): ";
-    
-    getline(std::wcin, ws);
-    ws = cvt.from_bytes(utf8);
-    utf8 = cvt.to_bytes(ws);
-    std::cout << utf8 << '\n';
-    std::wcout << ws << L'\n';
+	std::string utf8 = u8"Testing unicode -- English -- Ελληνικά -- Español.";
+	STDTCOUT << convert2stream(utf8 + '\n');
+	STDTCOUT << convert2stream("Enter new string");
+
+	tstring ws;
+	getline(STDTCIN, ws);
+
+	utf8 = convertFromStream(ws);
+	STDTCOUT << convert2stream(utf8 + '\n');
 
 }
