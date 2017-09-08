@@ -6,23 +6,38 @@
 #ifdef WIN32
 #include <io.h>
 #include <fcntl.h>
+#define WIDE
+#endif
+
+#ifdef WIDE
 #define STDTCOUT std::wcout
 #define STDTCIN std::wcin
 using tstring = std::wstring;
+#define MODETEXT _O_U16TEXT 
 #else
 #define STDTCOUT std::cout
 #define STDTCIN std::cin
 using tstring = std::string;
+#define MODETEXT _O_U8TEXT 
 #endif
 
 void initconsole()
 {
 #ifdef WIN32
 	//on windows - switch to utf-16, on linus the utf-8 is default - no need to switch
-	_setmode(_fileno(stdout), _O_U16TEXT);
-	_setmode(_fileno(stdin), _O_U16TEXT);
+	_setmode(_fileno(stdout), MODETEXT);
+	_setmode(_fileno(stdin), MODETEXT);
 #endif
 }
+
+
+//code below is the same for linux/windows
+//linux part works out-of-the-box
+//windows version requires following pre-sets
+// 1. Store the source cpp file as UTF-8 BOM format before ccompiling
+// 2. Change the font in the command line to one suporting unicode gliphs
+//    
+
 //version for utf8 stdout
 template<class T>
 T convert2stream(std::string source, typename std::enable_if<std::is_same<T, std::string>::value >::type* = 0)
