@@ -49,6 +49,9 @@
         "utility": "cpp",
         "codecvt": "cpp",
         "string": "cpp",
-        "*.ipp": "cpp"
+        "*.ipp": "cpp",
+        "vector": "cpp",
+        "algorithm": "cpp",
+        "filesystem": "cpp"
     }
 }
