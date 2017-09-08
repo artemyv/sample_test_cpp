@@ -1,72 +1,37 @@
-
-#include <iostream>
+#include <boost/serialization/string.hpp>
 #include <string>
-#include <cstddef>
+#include <sstream>
+#include <boost/property_tree/ptree.hpp>
+#include <boost/property_tree/json_parser.hpp>
+using boost::property_tree::ptree; 
+using boost::property_tree::write_json;
 
+void create_array(ptree parent)
+{
+    std::stringstream oss;
 
+    write_json(oss,parent);
 
-int year;
-    int month;
-    int day;
+    std::string serialized_strings(oss.str());
 
-class Date{
-    Date();
-    ~Date();
-    int getday();
-    int getmonth();
-    int getyear();
-    void setday(int d);
-    void setmonth(int m);
-    void setyear(int y);
-    std::string getdate();
+    std::cout << oss.str() << std::endl;
 }
-;
-Date::Date(){
-    day = 1;
-    month =1;
-    year = 1900;
+#if 0
+int main()                                                                                                                                                                                                 
+{   
 
-}
-Date::~Date(){
-    day = 1;
-    month =1;
-    year = 1900;
+    ptree parent;
 
-}
+    ptree pt,pt1;
 
-int Date::getday (){
-    return day;
+    pt.put("prefix","standard");
+    pt.put("faceID",42);
+    //create_array(pt);
+    pt1.put("prefix1","standard2");
+    pt1.put("faceID2",44);
+    //create_array(pt1); 
+    parent.push_back(std::make_pair("",pt));
+    parent.push_back(std::make_pair("",pt1));
+    create_array(parent); 
 }
-int Date::getmonth (){
-    return month;
-}
-int Date::getyear (){
-    return year;
-}
-void Date::setday(int d){
-    day = d;
-}
-void Date::setmonth(int m){
-    month = m;
-}
-void Date::setyear(int y){
-    year = y;
-}
-std::string Date::getdate(){
-    std::string completedate;
-    std::string dayS;
-    std::string monthS;
-    std::string yearS;
-
-
-
-    dayS = std::to_string(day);
-    monthS=std::to_string(month);
-    yearS=std::to_string(year);
-
-    completedate = monthS + "/" + dayS ;
-    completedate = completedate + "/";
-    completedate = completedate + yearS;
-
-    return completedate;// get the date
-    }
+#endif

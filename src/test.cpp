@@ -2,6 +2,8 @@
 #include <codecvt>
 #include <locale>
 #include <type_traits>
+#include <fstream>
+#include <string>
 
 #ifdef WIN32
 #include <io.h>
@@ -89,13 +91,27 @@ int main()
 	getline(STDTCIN, ws);
 
 	//optionally convert to inernal utf8 representation
-	utf8 = convertFromStream(ws);
+	std::string user = convertFromStream(ws);
 
 	//check what is being read
 	STDTCOUT << convert2stream<tstring>(utf8 + '\n');
 
-}
+	std::ofstream f1("test_utf8_direct.txt");
 
+	f1 << utf8 << '\n' << user << '\n';
+	f1.close();
+
+
+#ifdef WIN32
+	std::wofstream f2;
+	f2.imbue(std::locale(std::locale::empty(), new std::codecvt_utf8<wchar_t,0x10ffff,std::generate_header>));
+	f2.open(L"test_utf8_from16.txt");
+	f2 << convert2stream<std::wstring>(utf8 + '\n');
+	f2 << convert2stream<std::wstring>(user + '\n');
+#endif
+
+
+}
 
 /*************
 Output
