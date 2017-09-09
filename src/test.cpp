@@ -94,23 +94,20 @@ int main()
 	std::string user = convertFromStream(ws);
 
 	//check what is being read
-	STDTCOUT << convert2stream<tstring>(utf8 + '\n');
+	STDTCOUT << convert2stream<tstring>(user + '\n');
 
 	std::ofstream f1("test_utf8_direct.txt");
 
 	f1 << utf8 << '\n' << user << '\n';
 	f1.close();
 
-
-#ifdef WIN32
 	std::wofstream f2;
-	f2.imbue(std::locale(std::locale::empty(), new std::codecvt_utf8<wchar_t,0x10ffff,std::generate_header>));
-	f2.open(L"test_utf8_from16.txt");
+	std::locale l1;
+	std::locale l2(l1, new std::codecvt_utf8<wchar_t>);
+	f2.imbue(l2);
+	f2.open("test_utf8_from16.txt");
 	f2 << convert2stream<std::wstring>(utf8 + '\n');
 	f2 << convert2stream<std::wstring>(user + '\n');
-#endif
-
-
 }
 
 /*************
