@@ -4,39 +4,51 @@
 #include <type_traits>
 #include <fstream>
 #include <string>
+#include <sstream>
+#include <mutex>
 
 #ifdef WIN32
 #include <io.h>
 #include <fcntl.h>
-
-//following define swithces from narrow to wide-char output
-// using narrow output on windows described in https://alfps.wordpress.com/2011/12/08/unicode-part-2-utf-8-stream-mode/
-// but I feel like it is too much work comparing to linux straight and forward way
-// so using wide output/input seems a lot easier on windows
-#define WIDE
 #endif
 
-#ifdef WIDE
-#define STDTCOUT std::wcout
-#define STDTCIN std::wcin
-using tstring = std::wstring;
-#define MODETEXT _O_U16TEXT 
-#else
-#define STDTCOUT std::cout
-#define STDTCIN std::cin
-using tstring = std::string;
-#define MODETEXT _O_U8TEXT 
-#endif
-
-void initconsole()
+class MyCout
 {
+private:
+	static std::once_flag flag1;
+	bool bWide = false;
+public:
+	MyCout()
+	{
+		std::call_once(flag1, [](){ 
 #ifdef WIN32
-	//on windows - switch to utf-16, on linus the utf-8 is default - no need to switch
-	_setmode(_fileno(stdout), MODETEXT);
-	_setmode(_fileno(stdin), MODETEXT);
+			//on windows - switch to utf-16, on linus the utf-8 is default - no need to switch
+			_setmode(_fileno(stdout), MODETEXT);
+			_setmode(_fileno(stdin), MODETEXT);
 #endif
-}
+				});
+#ifdef WIN32
+		bWide = true;
+#endif
+	}
+	std::stringstream s;
 
+	template <typename T>
+	MyCout& operator << (const T &x) {
+		s << x;
+		return *this;
+	}
+
+	~MyCout() {
+		if(bWide){
+			std::wstring_convert<std::codecvt_utf8<wchar_t>> cvt;
+			std::wcout << cvt.from_bytes( s.str());
+		}
+		else{
+			std::cout << s.str();
+		}
+	}
+};
 
 //code below is the same for linux/windows
 //linux part works out-of-the-box
@@ -49,7 +61,7 @@ void initconsole()
 template<class T>
 T convert2stream(std::string source, typename std::enable_if<std::is_same<T, std::string>::value >::type* = 0)
 {
-    return source;
+	return source;
 }
 
 //version for utf16 stdout
@@ -64,7 +76,7 @@ T convert2stream(std::string source, typename std::enable_if<std::is_same<T, std
 template<class T>
 std::string convertFromStream(T source, typename std::enable_if<std::is_same<T, std::string>::value >::type* = 0)
 {
-    return source;
+	return source;
 }
 
 //version for utf16 stdin
@@ -74,18 +86,18 @@ std::string convertFromStream(T source, typename std::enable_if<std::is_same<T, 
 	std::wstring_convert<std::codecvt_utf8<wchar_t>> cvt;
 	return cvt.to_bytes(source);
 }
-
+#if 0
 int main()
 {
-	initconsole();
-
 	//internal string always utf-8
 	std::string utf8 = u8"Testing unicode -- English -- 水 -- Ελληνικά -- Español -- Русский -- עיברית.";
 
 	//when writing to stdout - optionally convert
-	STDTCOUT << convert2stream<tstring>(utf8 + '\n');
-	STDTCOUT << convert2stream<tstring>("Enter new string: ");
+	MyCout() << utf8  << '\n';
+	MyCout() << "Enter new string: ";
 
+	MyCout() << "test 1" << 1 << std::endl; 
+	#if 0
 	//when reading from stdin - use intemediate type
 	tstring ws;
 	getline(STDTCIN, ws);
@@ -108,8 +120,8 @@ int main()
 	f2.open("test_utf8_from16.txt");
 	f2 << convert2stream<std::wstring>(utf8 + '\n');
 	f2 << convert2stream<std::wstring>(user + '\n');
+	#endif
 }
-
 /*************
 Output
 $ ./test
@@ -120,3 +132,4 @@ hello привет שלום
 
 Actually hebrew text in the console is show left to right direction instad of correct right to left 
 */
+#endif
