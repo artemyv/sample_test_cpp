@@ -1,2 +1,0 @@
-Testing unicode -- English -- 水 -- Ελληνικά -- Español -- Русский -- עיברית.
-Test -- тест -- שךום

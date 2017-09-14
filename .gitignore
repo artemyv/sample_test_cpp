@@ -6,3 +6,5 @@ test
 /Debug
 /.vs/Array_of_strings/v15
 /.vs/Test_cpp/v15
+/test_utf8_direct.txt
+/test_utf8_from16.txt
