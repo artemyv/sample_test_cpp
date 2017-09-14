@@ -1,45 +1,26 @@
-//https://stackoverflow.com/questions/46203948/reading-array-of-the-json-in-jsoncpp/46205021#46205021
+//https://stackoverflow.com/questions/46209857/what-happened-to-operator/46210402#46210402
 // Example program
     #include <iostream>
     #include <string>
-    #include <json/json.h>
     int main()
     {
 
-        std::string s = R"({
-            "return":
-            {
-            "status":200,
-            "message":"Accepted"
-            },
-            "entries":
-            [
-            {
-            "messageid":185002992,
-            "message":"CplusItsGood",
-            "status":1,
-            "statustext":"test",
-            "sender":"1234567",
-            "receptor":"123456789",
-            "date":1234,
-            "cost":140
-            }
-            ]
-        })";
+        unsigned int res = 0;
+        signed char val = -64;
+        res += val;
 
+        std::cout << res << '\n';
+        
+        res = 0;
+        res += static_cast<unsigned char>(val);
+        std::cout << res << '\n';
+        
 
-        Json::Reader reader;
-        Json::Value root;
-
-        reader.parse(s, root, false);
-
-        auto entriesArray = root["entries"];
-
-        auto firstelem = entriesArray[0];
-        std::string sender = firstelem["sender"].asString();
-        int i = std::stoi(sender);
-        std::cout << "array:" << entriesArray << "\n";
-        std::cout << "element:" << firstelem << "\n";
-        std::cout << "value:" << sender << "\n";
-        std::cout << "parsed value:" << i << "\n";
     }
+
+    /****************
+    Output
+    $ ./test
+    4294967232
+    192
+    */
