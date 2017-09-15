@@ -26,7 +26,7 @@ ifeq ($(CC),g++)
 else
 	CFLAGS= -g -std=c++14 -Werror -Wall -Wextra -pedantic -Wcast-align -Wcast-qual -Wdisabled-optimization -Wformat=2 -Winit-self -Wmissing-include-dirs -Wold-style-cast -Woverloaded-virtual -Wredundant-decls -Wshadow -Wsign-promo -Wstrict-overflow=5 -Wundef -Wno-unused -Wno-variadic-macros -Wno-parentheses -fdiagnostics-show-option  -I$(IDIR) -I$(IDIR2)
 endif
-CFLAGS= -g -std=c++14 -Wall -fexceptions -fPIC  -I$(IDIR) -I$(IDIR2) -Wno-unknown-pragmas -Wno-deprecated-declarations
+#CFLAGS= -g -std=c++14 -Wall -fexceptions -fPIC  -I$(IDIR) -I$(IDIR2) -Wno-unknown-pragmas -Wno-deprecated-declarations
 
 LIBS=-lm -lpthread
 
