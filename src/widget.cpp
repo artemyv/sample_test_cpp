@@ -1,83 +1,56 @@
-//Sutter H. - Exceptional C++ Item 43. Const-Correctness
+#include <iostream>
+#include <thread>
 #include <vector>
 
-class Point
-{
+using namespace std;
+
+class run {
 public:
-    Point(int,int) {}
-};
-class Polygon
-{
-public:
-    Polygon() : area_(-1) {}
-
-    void AddPoint( Point pt ) 
-    {
-        InvalidateArea();
-        points_.push_back(pt);
+    run()
+    : lifetime("constructed")
+    { 
+        cout << lifetime << endl; 
     }
 
-    const Point GetPoint( int i ) const 
-    {
-        return points_[i];
+    run(const run& other)
+    : lifetime("copied from " + other.lifetime)
+    { 
+        cout << lifetime << endl; 
+    }
+    run(run&& other) 
+    : lifetime("move-constructed from " + other.lifetime)
+    { 
+        other.lifetime = "[zombie] - " + other.lifetime;
+        cout << lifetime << endl; 
+    }
+    run& operator=(const run& other) 
+    { 
+        lifetime = "copy assigned from " + other.lifetime + ", was once " + lifetime; 
+        cout << lifetime << endl; 
+        return *this; 
     }
 
-    int GetNumPoints() const 
-    {
-        return points_.size();
+    run& operator=(run &&other) 
+    { 
+        lifetime = "move-assigned from " + other.lifetime + ", was once " + lifetime; 
+        other.lifetime = "[zombie] - " + other.lifetime;
+        cout << lifetime << endl; 
+        return *this; 
     }
 
-    double GetArea() const
+    ~run() 
     {
-        if( area_ < 0 ) // if not yet calculated and cached
-            CalcArea();     // calculate now
-        return area_;
+        lifetime = "lifetime ending: " + lifetime;
+        cout << lifetime << endl; 
     }
 
-private:
-    void InvalidateArea() const 
-    {
-        area_ = -1;
-    }
+    void operator()() {};
 
-    void CalcArea() const
-    {
-        area_ = 0;
-        std::vector<Point>::const_iterator i;
-        for( i = points_.begin(); i != points_.end(); ++i )
-            area_ += 1;
-    }
-
-    std::vector<Point>  points_;
-    mutable double area_; //internal cache - declared mutable so const functions coudl modify it, public object state is not changed
+    std::string lifetime;    
 };
 
-const Polygon operator+( const Polygon& lhs,
-                         const Polygon& rhs )
-{
-    Polygon ret = lhs;
-    const int last = rhs.GetNumPoints();
-    for( int i = 0; i < last; ++i ) // concatenate
-        ret.AddPoint( rhs.GetPoint(i) );
-    return ret;
-}
-
-void f( Polygon& poly )
-{
-    poly.AddPoint( Point(0,0) );
-}
-
-void g( Polygon& rPoly ) {
-    rPoly.AddPoint( Point(1,1) );
-}
-void h( Polygon* pPoly ) {
-    pPoly->AddPoint( Point(2,2) );
-}
-
-int main()
-{
-    Polygon poly;
-    f(poly);
-    g(poly);
-    h(&poly);
+int main() {
+    run thread_r;
+    thread t(thread_r);
+    t.join();
 }

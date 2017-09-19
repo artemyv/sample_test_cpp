@@ -7,8 +7,8 @@ ODIR = obj
 ODIR2 = obj2
 LDIR = lib
 
-CC=clang++-4.0
-#CC=g++
+#CC=clang++-4.0
+CC=g++
 #CC=g++-7
 
 V = 0

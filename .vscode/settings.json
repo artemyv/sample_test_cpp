@@ -52,6 +52,7 @@
         "*.ipp": "cpp",
         "vector": "cpp",
         "algorithm": "cpp",
-        "filesystem": "cpp"
+        "filesystem": "cpp",
+        "iterator": "cpp"
     }
 }
