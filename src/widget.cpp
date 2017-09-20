@@ -1,56 +1,32 @@
+//https://stackoverflow.com/questions/46317751/utf-8-sprintf-strlen-etc#46318241
+
 #include <iostream>
-#include <thread>
-#include <vector>
+#include <codecvt>
+#include <string>
+#include <locale>
 
-using namespace std;
-
-class run {
-public:
-    run()
-    : lifetime("constructed")
-    { 
-        cout << lifetime << endl; 
-    }
-
-    run(const run& other)
-    : lifetime("copied from " + other.lifetime)
-    { 
-        cout << lifetime << endl; 
-    }
-    run(run&& other) 
-    : lifetime("move-constructed from " + other.lifetime)
-    { 
-        other.lifetime = "[zombie] - " + other.lifetime;
-        cout << lifetime << endl; 
-    }
-    run& operator=(const run& other) 
-    { 
-        lifetime = "copy assigned from " + other.lifetime + ", was once " + lifetime; 
-        cout << lifetime << endl; 
-        return *this; 
-    }
-
-    run& operator=(run &&other) 
-    { 
-        lifetime = "move-assigned from " + other.lifetime + ", was once " + lifetime; 
-        other.lifetime = "[zombie] - " + other.lifetime;
-        cout << lifetime << endl; 
-        return *this; 
-    }
-
-    ~run() 
+std::string cutString(const std::string& in, size_t len)
+{
+    std::wstring_convert<std::codecvt_utf8<wchar_t>> cvt;
+    auto wstring = cvt.from_bytes(in);
+    if(len < wstring.length())
     {
-        lifetime = "lifetime ending: " + lifetime;
-        cout << lifetime << endl; 
-    }
-
-    void operator()() {};
-
-    std::string lifetime;    
-};
-
-int main() {
-    run thread_r;
-    thread t(thread_r);
-    t.join();
+        wstring = wstring.substr(len);
+        return cvt.to_bytes(wstring);
+    }    
+    return in;
 }
+int main(){
+    std::string test = "你好世界這是演示樣本";
+
+    std::string res = cutString(test,5);
+    std::cout << res << '\n';
+    
+    return 0;
+}
+
+/****************
+Output 
+$ ./test
+是演示樣本
+*/
