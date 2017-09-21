@@ -1,33 +1,41 @@
-//https://stackoverflow.com/questions/46317751/utf-8-sprintf-strlen-etc#46318241
+#ifndef BOOST_LOG_DYN_LINK
+define BOOST_LOG_DYN_LINK
+#endif
+/*
+ *          Copyright Andrey Semashev 2007 - 2015.
+ * Distributed under the Boost Software License, Version 1.0.
+ *    (See accompanying file LICENSE_1_0.txt or copy at
+ *          http://www.boost.org/LICENSE_1_0.txt)
+ */
 
-    #include <iostream>
-    #include <codecvt>
-    #include <string>
-    #include <locale>
+ #include <boost/log/core.hpp>
+ #include <boost/log/trivial.hpp>
+ #include <boost/log/expressions.hpp>
+ 
+ namespace logging = boost::log;
+ 
+ //[ example_tutorial_trivial_with_filtering
+ void init()
+ {
+     logging::core::get()->set_filter
+     (
+         logging::trivial::severity >= logging::trivial::info
+     );
 
-    std::string cutString(const std::string& in, size_t len)
-    {
-        std::wstring_convert<std::codecvt_utf8<wchar_t>> cvt;
-        auto wstring = cvt.from_bytes(in);
-        if(len < wstring.length())
-        {
-            wstring = wstring.substr(0,len);
-            return cvt.to_bytes(wstring);
-        }    
-        return in;
-    }
-    int main(){
-        std::string test = "你好世界這是演示樣本";
-
-        std::string res = cutString(test,5);
-        std::cout << test << '\n' << res << '\n';
-        
-        return 0;
-    }
-
-    /****************
-    Output 
-    $ ./test
-    你好世界這是演示樣本
-    你好世界這
-    */
+     
+ }
+ 
+ int main(int, char*[])
+ {
+     init();
+ 
+     BOOST_LOG_TRIVIAL(trace) << "A trace severity message";
+     BOOST_LOG_TRIVIAL(debug) << "A debug severity message";
+     BOOST_LOG_TRIVIAL(info) << "An informational severity message";
+     BOOST_LOG_TRIVIAL(warning) << "A warning severity message";
+     BOOST_LOG_TRIVIAL(error) << "An error severity message";
+     BOOST_LOG_TRIVIAL(fatal) << "A fatal severity message";
+ 
+     return 0;
+ }
+ //]

@@ -8,8 +8,8 @@ ODIR2 = obj2
 LDIR = lib
 
 #CC=clang++-4.0
-CC=g++
-#CC=g++-7
+#CC=g++
+CC=g++-7
 
 V = 0
 ACTUAL_CC := $(CC)
@@ -22,13 +22,13 @@ CC = $(CC_$(V))
 
 #CFLAGS= -g -std=c++14 -Werror -Wall -Wextra -pedantic -Wcast-align -Wcast-qual -Wctor-dtor-privacy -Wdisabled-optimization -Wformat=2 -Winit-self -Wlogical-op -Wmissing-include-dirs -Wnoexcept -Woverloaded-virtual -Wredundant-decls -Wshadow -Wsign-promo -Wstrict-null-sentinel -Wstrict-overflow=5 -Wundef -Wno-unused -Wno-variadic-macros -Wno-parentheses -fdiagnostics-show-option -I$(IDIR)
 ifeq ($(CC),g++)
-	CFLAGS= -v -g -std=c++14 -Werror -Wall -Wextra -pedantic -Wcast-align -Wcast-qual -Wdisabled-optimization -Wformat=2 -Winit-self -Wlogical-op -Wmissing-include-dirs -Wnoexcept -Wold-style-cast -Woverloaded-virtual -Wredundant-decls -Wshadow -Wsign-promo -Wstrict-null-sentinel -Wstrict-overflow=5 -Wundef -Wno-unused -Wno-variadic-macros -Wno-parentheses -fdiagnostics-show-option -I$(IDIR) -I$(IDIR2)
+	CFLAGS= -v -g -std=c++14 -DBOOST_LOG_DYN_LINK -Werror -Wall -Wextra -pedantic -Wcast-align -Wcast-qual -Wdisabled-optimization -Wformat=2 -Winit-self -Wlogical-op -Wmissing-include-dirs -Wnoexcept -Wold-style-cast -Woverloaded-virtual -Wredundant-decls -Wshadow -Wsign-promo -Wstrict-null-sentinel -Wstrict-overflow=5 -Wundef -Wno-unused -Wno-variadic-macros -Wno-parentheses -fdiagnostics-show-option -I$(IDIR) -I$(IDIR2)
 else
-	CFLAGS= -g -std=c++14 -Werror -Wall -Wextra -pedantic -Wcast-align -Wcast-qual -Wdisabled-optimization -Wformat=2 -Winit-self -Wmissing-include-dirs -Wold-style-cast -Woverloaded-virtual -Wredundant-decls -Wshadow -Wsign-promo -Wstrict-overflow=5 -Wundef -Wno-unused -Wno-variadic-macros -Wno-parentheses -fdiagnostics-show-option  -I$(IDIR) -I$(IDIR2)
+	CFLAGS= -g -std=c++14 -DBOOST_LOG_DYN_LINK -Werror -Wall -Wextra -pedantic -Wcast-align -Wcast-qual -Wdisabled-optimization -Wformat=2 -Winit-self -Wmissing-include-dirs -Wold-style-cast -Woverloaded-virtual -Wredundant-decls -Wshadow -Wsign-promo -Wstrict-overflow=5 -Wundef -Wno-unused -Wno-variadic-macros -Wno-parentheses -fdiagnostics-show-option  -I$(IDIR) -I$(IDIR2)
 endif
 #CFLAGS= -g -std=c++14 -Wall -fexceptions -fPIC  -I$(IDIR) -I$(IDIR2) -Wno-unknown-pragmas -Wno-deprecated-declarations
 
-LIBS=-lm -lpthread
+LIBS=-lm -lpthread -lboost_log -lboost_log_setup  -lboost_system -lboost_thread 
 
 #_DEPS = hellomake.h
 DEPS = $(patsubst %,$(IDIR)/%,$(_DEPS))
