@@ -24,7 +24,7 @@ CC = $(CC_$(V))
 ifeq ($(CC),g++)
 	CFLAGS= -v -g -std=c++14 -DBOOST_LOG_DYN_LINK -Werror -Wall -Wextra -pedantic -Wcast-align -Wcast-qual -Wdisabled-optimization -Wformat=2 -Winit-self -Wlogical-op -Wmissing-include-dirs -Wnoexcept -Wold-style-cast -Woverloaded-virtual -Wredundant-decls -Wshadow -Wsign-promo -Wstrict-null-sentinel -Wstrict-overflow=5 -Wundef -Wno-unused -Wno-variadic-macros -Wno-parentheses -fdiagnostics-show-option -I$(IDIR) -I$(IDIR2)
 else
-	CFLAGS= -g -std=c++14 -DBOOST_LOG_DYN_LINK -Werror -Wall -Wextra -pedantic -Wcast-align -Wcast-qual -Wdisabled-optimization -Wformat=2 -Winit-self -Wmissing-include-dirs -Wold-style-cast -Woverloaded-virtual -Wredundant-decls -Wshadow -Wsign-promo -Wstrict-overflow=5 -Wundef -Wno-unused -Wno-variadic-macros -Wno-parentheses -fdiagnostics-show-option  -I$(IDIR) -I$(IDIR2)
+	CFLAGS= -g -std=c++1z -DBOOST_LOG_DYN_LINK -Werror -Wall -Wextra -pedantic -Wcast-align -Wcast-qual -Wdisabled-optimization -Wformat=2 -Winit-self -Wmissing-include-dirs -Wold-style-cast -Woverloaded-virtual -Wredundant-decls -Wshadow -Wsign-promo -Wstrict-overflow=5 -Wundef -Wno-unused -Wno-variadic-macros -Wno-parentheses -fdiagnostics-show-option  -I$(IDIR) -I$(IDIR2)
 endif
 #CFLAGS= -g -std=c++14 -Wall -fexceptions -fPIC  -I$(IDIR) -I$(IDIR2) -Wno-unknown-pragmas -Wno-deprecated-declarations
 
