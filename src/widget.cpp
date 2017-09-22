@@ -1,20 +1,26 @@
-#include <type_traits>
+//Sutter H. - More Exceptional C++ (C++ In-Depth) - 2001
+//Item 32. Recursive Declarations
 
-template <decltype(auto) RefOrValue>
-struct Foo {
-    static_assert(!std::is_reference_v<decltype(RefOrValue)>, "Should not be ref");
+class FuncPtr_;
+typedef FuncPtr_ (*FuncPtr)();
+class FuncPtr_
+{
+public:
+    FuncPtr_( FuncPtr p ) : p_( p ) { }
+    operator FuncPtr() {
+        return p_;
+    }
+private:
+    FuncPtr p_;
 };
 
-template <decltype(auto) RefOrValue>
-struct Bar {
-    static_assert(std::is_reference_v<decltype(RefOrValue)>, "Have to be ref");
-    Foo<static_cast<std::decay_t<decltype(RefOrValue)>>(RefOrValue)> foo;
-};
 
+FuncPtr_ f() {
+    return f;    // natural return syntax
+}
 
-constexpr int value = 1;
-int main() {
-    Bar<(value)> bar;
-    static_cast<void>(bar);
-    Foo<value> foo;
+int main()
+{
+    FuncPtr p = f();  // natural usage syntax
+    p();
 }
