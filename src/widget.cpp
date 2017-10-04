@@ -1,26 +1,31 @@
-//Sutter H. - More Exceptional C++ (C++ In-Depth) - 2001
-//Item 32. Recursive Declarations
+https://stackoverflow.com/questions/46556985/how-do-i-format-my-function-to-call-a-templated-class#46556985
 
-class FuncPtr_;
-typedef FuncPtr_ (*FuncPtr)();
-class FuncPtr_
-{
+#include <iostream>
+
+template <typename T>
+class Foo {
+    T t_;
 public:
-    FuncPtr_( FuncPtr p ) : p_( p ) { }
-    operator FuncPtr() {
-        return p_;
-    }
-private:
-    FuncPtr p_;
+    Foo(const T& t):t_(t){};
+    void print() {std::cout << t_ << '\n'; }
 };
 
+class noFoo {
+public:
+    template <typename T>
+    void test(Foo <T>& foo);
+};
 
-FuncPtr_ f() {
-    return f;    // natural return syntax
-}
-
-int main()
+template <typename T>
+void noFoo::test(Foo <T>& foo)
 {
-    FuncPtr p = f();  // natural usage syntax
-    p();
+    foo.print();
+}
+int main() {
+    Foo<char> wr('A');
+    Foo<int> wi(5);
+    noFoo n;
+    n.test(wr);
+    n.test(wi);
+    return 0;
 }
