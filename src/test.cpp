@@ -1,45 +1,34 @@
 ﻿#include <iostream>
-#include <fstream>
-#include <string>
-#include <sstream>
-#include <mutex>
+#include <functional>
 
-template<class T, class Enable = void>
-struct RealNumber
+void g(int)
 {
-	RealNumber(double val)
-		: integer(static_cast<int>(val)),
-		  fraction(static_cast<short>((val - integer)*100))
-	{}
+	std::cout << "g OK\n";
+}
 
-	int integer;
-	short fraction;
-};
-
-template<class T>
-struct RealNumber<T, typename std::enable_if_t<std::is_floating_point<T>::value>>
+int h(int u)
 {
-	RealNumber(T val)
-		: value(val)
-	{}
+	std::cout << "h OK\n";
+	return u;
+}
 
-	T value;
-};
+template <class T, class U>
+T f(std::function<T(U)> g, U u, T defaultval = T())
+{
+	T res = g(u);
+	return defaultval;
+}
+
+template <class U>
+void f(std::function<void(U)> g, U u)
+{
+	return g(u);
+}
 
 int main()
 {
-
-	auto a = RealNumber<double>(1.3);
-	auto b = RealNumber<float>(1.3f);
-	auto c = RealNumber<long double>(1.3l);
-	auto d = RealNumber<int>(1);
-	auto e = RealNumber<int>(1.5);
-
-	std::cout << a.value << std::endl;
-	std::cout << b.value << std::endl;
-	std::cout << c.value << std::endl;
-	std::cout << d.integer << '.' << d.fraction << std::endl;
-	std::cout << e.integer << '.' << e.fraction << std::endl;
+	f(std::function<void(int)>(g), 123);
+	f(std::function<int(int)>(h),123, 0);
 
 	return 0;
 }
