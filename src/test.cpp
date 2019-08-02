@@ -1,34 +1,28 @@
 ﻿#include <iostream>
-#include <functional>
 
-void g(int)
-{
-	std::cout << "g OK\n";
+template<typename... Ts> void func(Ts... args){
+    int dummy[sizeof...(Ts)] = { (std::cout << args, 0)... };
 }
 
-int h(int u)
+template<class T>
+auto wrapper(T&& arg) 
 {
-	std::cout << "h OK\n";
-	return u;
+    // arg is always lvalue
+    return std::forward<T>(arg); // Forward as lvalue or as rvalue, depending on T
 }
 
-template <class T, class U>
-T f(std::function<T(U)> g, U u, T defaultval = T())
+auto wrapper(const wchar_t* arg) 
 {
-	T res = g(u);
-	return defaultval;
+    // arg is always lvalue
+    return "converted"; 
 }
-
-template <class U>
-void f(std::function<void(U)> g, U u)
-{
-	return g(u);
+template<typename... Ts> void orig(Ts... args){
+    func(wrapper(args)...);
 }
 
 int main()
 {
-	f(std::function<void(int)>(g), 123);
-	f(std::function<int(int)>(h),123, 0);
+	orig("test", L"test2", 1,2.4);
 
 	return 0;
 }
