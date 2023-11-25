@@ -62,6 +62,33 @@ struct NotFilter
 	bool IsMatched(const PatchInfo& info) { return !m_internal.IsMatched(info); }
 };
 
+struct NotAFilter1
+{
+	void serialize(std::string& ) {};
+	bool deserialize(std::string_view ) { return true; };
+	bool IsMatched(const PatchInfo& ) { return true; };
+};
+struct NotAFilter2
+{
+	bool deserialize(std::string_view ) { return true; };
+	bool IsMatched(const PatchInfo& ) { return true; };
+};
+struct NotAFilter3
+{
+	bool serialize(std::string& ) { return true; };
+	bool deserialize(std::string_view ) { return true; };
+	bool IsMatched(PatchInfo ) { return true; };
+};
+struct NotAFilter4
+{
+	bool serialize(std::string&) { return true; };
+	bool deserialize(const std::string&) { return true; };
+	bool IsMatched(PatchInfo) { return true; };
+};
+//using test1 = NotFilter<NotAFilter1>;
+//using test2 = NotFilter<NotAFilter2>;
+using test3 = NotFilter<NotAFilter3>;
+//using test4 = NotFilter<NotAFilter4>;
 int main()
 {
 	std::println("Hello using modules");
