@@ -18,15 +18,18 @@
     <ClInclude Include="IFace.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="ComponentWrapper.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Deps\dllhelper\dllhelper.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Component.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="GUIDS.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
