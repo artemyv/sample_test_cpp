@@ -2,11 +2,10 @@
 // Client1.cpp
 // Комиляция: cl Client1.cpp Create.cpp GUIDs.cpp UUID.lib
 //
-#include <string>
-#include <IFace.h>
 #include <ComponentWrapper.h>
 #include <format>
 #include <iostream>
+#include <string>
 #include <source_location>
 
 namespace
