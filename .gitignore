@@ -1,7 +1,0 @@
-obj
-*.suo
-*.ipch
-/Debug
-/x64
-/.vs
-*.user
