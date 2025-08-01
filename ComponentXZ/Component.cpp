@@ -27,9 +27,9 @@ namespace
 		ULONG __stdcall AddRef() override;
 		ULONG __stdcall Release() override;
 		// Реализация интерфейса IX
-		void __stdcall Fx() noexcept override { trace("Fx"); }
+		void __stdcall Fx() const  override { trace("Fx"); }
 		// Реализация интерфейса IY
-		void __stdcall Fz() noexcept override  { trace("Fz"); }
+		void __stdcall Fz() const  override  { trace("Fz"); }
 	public:
 		// Деструктор
 		virtual ~CA() { trace("Destructing"); }

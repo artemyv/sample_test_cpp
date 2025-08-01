@@ -30,7 +30,7 @@ namespace
 		ULONG __stdcall AddRef() override;
 		ULONG __stdcall Release() override;
 		// Реализация интерфейса IX
-		void Fx() noexcept override { trace("Fx"); }
+		void Fx()  const noexcept override { trace("Fx"); }
 		BSTR GetVersion() const override
 		{
 			_bstr_t version(L"1.0.0");
@@ -38,7 +38,7 @@ namespace
 		}
 
 		// Реализация интерфейса IY
-		void Fy() noexcept override  { trace("Fy"); }
+		void Fy() const noexcept override  { trace("Fy"); }
 	public:
 		// Деструктор
 		virtual ~CA() { trace("Destructing"); }
