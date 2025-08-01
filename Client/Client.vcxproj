@@ -165,7 +165,6 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Client.cpp" />
-    <ClCompile Include="Create.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Component\IFace.h" />

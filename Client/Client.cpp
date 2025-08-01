@@ -4,7 +4,7 @@
 //
 #include <string>
 #include <IFace.h>
-#include "Create.h"
+#include <ComponentWrapper.h>
 #include <format>
 #include <iostream>
 #include <source_location>
@@ -21,15 +21,19 @@ int main()
 {
 	// Считать имя компонента
 
-	std::string name;
+	std::wstring name;
 	std::puts( "Enter the dll name[Component.dll]: ");
-	std::getline(std::cin, name);
+	std::getline(std::wcin, name);
 	if (!name.empty() && name.back() == '\n') name.pop_back();
-	
+	if(name.empty()) {
+		name = L"Component.dll";
+	}
+	ComponentWrapper wrapper(name.c_str());
+
 	// Создать компонент вызовом функции CreateInstance из DLL
 	trace("get IUnknown");
 	{
-		_com_ptr_t<_com_IIID<IUnknown, &IID_IUnknown>> pIUnknown(CallCreateInstance(name), false);
+		_com_ptr_t<_com_IIID<IUnknown, &IID_IUnknown>> pIUnknown(wrapper.CreateInstance(), false);
 		if (!pIUnknown)
 		{
 			trace("CallCreateInstance failed");

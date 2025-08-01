@@ -66,7 +66,7 @@ namespace
 			*ppv = nullptr;
 			return E_NOINTERFACE;
 		}
-		reinterpret_cast<IUnknown*>(*ppv)->AddRef();
+		static_cast<IUnknown*>(*ppv)->AddRef();
 		return S_OK;
 	}
 	ULONG __stdcall CA::AddRef()

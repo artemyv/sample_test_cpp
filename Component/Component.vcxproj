@@ -172,12 +172,13 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="..\Deps\dllhelper\dllhelper.hpp" />
+    <ClInclude Include="ComponentWrapper.h" />
     <ClInclude Include="IFace.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Component.cpp" />
     <ClCompile Include="dllmain.cpp" />
-    <ClCompile Include="GUIDS.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Component.def" />
