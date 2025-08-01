@@ -10,11 +10,11 @@ interface __declspec(uuid("32bb8320-b41b-11cf-a6bb-0080c7b2d682")) IX : public I
 {
 	virtual void Fx() = 0;
 };
-interface __declspec(uuid("32bb8321-b41b-11cf-a6bb-0080c7b2d682")) IY : IUnknown
+interface __declspec(uuid("32bb8321-b41b-11cf-a6bb-0080c7b2d682")) IY : public IUnknown
 {
 	virtual void __stdcall Fy() = 0;
 };
-interface __declspec(uuid("32bb8322-b41b-11cf-a6bb-0080c7b2d682")) IZ : IUnknown
+interface __declspec(uuid("32bb8322-b41b-11cf-a6bb-0080c7b2d682")) IZ : public IUnknown
 {
 	virtual void __stdcall Fz() = 0;
 };

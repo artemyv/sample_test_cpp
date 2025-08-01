@@ -8,11 +8,18 @@
 #include <format>
 #include <iostream>
 #include <source_location>
-#include <comdef.h>
 
-static void trace(const char* msg, std::source_location loc = std::source_location::current()) 
+namespace
 {
-	std::puts(std::format("Client 1:\t{:30} [{}:{}]", msg, loc.function_name(), loc.line()).c_str());
+	constexpr unsigned long forLog(HRESULT hr) noexcept
+	{
+		return hr;
+	}
+
+	static void trace(const char* msg, std::source_location loc = std::source_location::current())
+	{
+		std::puts(std::format("Client 1:\t{:40} [{}:{}]", msg, loc.function_name(), loc.line()).c_str());
+	}
 }
 //
 // Клиент1
@@ -28,60 +35,39 @@ int main()
 	if(name.empty()) {
 		name = L"Component.dll";
 	}
+	trace("get IUnknown");
 	ComponentWrapper wrapper(name.c_str());
 
-	// Создать компонент вызовом функции CreateInstance из DLL
-	trace("get IUnknown");
-	{
-		_com_ptr_t<_com_IIID<IUnknown, &IID_IUnknown>> pIUnknown(wrapper.CreateInstance(), false);
-		if (!pIUnknown)
-		{
-			trace("CallCreateInstance failed");
-			return 1;
-		}
-		{
-			trace("get IX");
-			_com_ptr_t<_com_IIID<IX, &__uuidof(IX)>> pIX(pIUnknown);
-
-			if (pIX)
-			{
-				trace("got IX");
-				pIX->Fx();
-			}
-			else
-			{
-				trace("failed to get IX");
-			}
-			if (pIX)
-			{
-				trace("get IY");
-				_com_ptr_t<_com_IIID<IY, &__uuidof(IY)>> pIY(pIX);
-
-				if (pIY) {
-					trace("got IY");
-					pIY->Fy();
-				}
-				else {
-					trace("failed to get IY");
-				}
-				trace("release IY");
-			}
-			trace("release IX");
-		}
-		{
-			trace("get IZ");
-			_com_ptr_t<_com_IIID<IZ, &__uuidof(IZ)>> pIZ(pIUnknown);
-
-			if(pIZ) {
-				trace("got IZ");
-				pIZ->Fz();
-			}
-			else {
-				trace("failed to get IZ");
-			}
-			trace("release IZ");
-		}
-		trace("release IUnknown");
+	if(!wrapper) {
+		trace("CallCreateInstance failed");
+		return 1;
 	}
+	trace("get IX");
+	auto res = wrapper.Fx();
+	if (FAILED(res)) {
+		trace(std::format("Fx failed with error: {:#10x}", forLog(res)).c_str());
+	}
+	else
+	{
+		trace("Fx succeeded");
+	}
+	trace("get IY");
+	res = wrapper.Fy();
+	if(FAILED(res)) {
+		trace(std::format("Fy failed with error: {:#10x}", forLog(res)).c_str());
+	}
+	else {
+		trace("Fy succeeded");
+	}
+	trace("get IZ");
+	res = wrapper.Fz();
+	if(FAILED(res)) {
+		trace(std::format("Fz failed with error: {:#10x}", forLog(res)).c_str());
+	}
+	else {
+		trace("Fz succeeded");
+	}
+
+
 	return 0;
 }

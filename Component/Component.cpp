@@ -12,7 +12,7 @@ namespace
 	static void trace(const char* msg, std::source_location loc = std::source_location::current()) noexcept
 	{
 		try {
-			std::puts(std::format("Component 1:\t{:30} [{}:{}]", msg, loc.function_name(), loc.line()).c_str());
+			std::puts(std::format("Component 1:\t{:40} [{}:{}]", msg, loc.function_name(), loc.line()).c_str());
 		}
 		catch(std::exception&) {
 			//swallow exceptions from std::format
