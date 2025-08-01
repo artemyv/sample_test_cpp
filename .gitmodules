@@ -1,0 +1,3 @@
+[submodule "Deps/dllhelper"]
+	path = Deps/dllhelper
+	url = https://github.com/bblanchon/dllhelper
