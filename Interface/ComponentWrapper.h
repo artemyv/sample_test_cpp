@@ -29,58 +29,37 @@ public:
 	{
 		return m_pIUnknown;
 	}
-	HRESULT Fx() const noexcept
+private:
+	template<typename Interface, typename Method>
+	HRESULT CallInterfaceMethod(Method method) const noexcept
 	{
 		if(!m_pIUnknown) {
 			return E_NOINTERFACE;
 		}
-		try
-		{
-			_com_ptr_t<_com_IIID<IX, &__uuidof(IX)>> pIX(m_pIUnknown);
-			if(pIX) {
-				pIX->Fx();
+		try {
+			_com_ptr_t<_com_IIID<Interface, &__uuidof(Interface)>> ptr(m_pIUnknown);
+			if(ptr) {
+				(ptr->*method)();
 				return S_OK;
 			}
 			return E_NOTIMPL;
 		}
-		catch (const _com_error& e)
-		{
+		catch(const _com_error& e) {
 			return e.Error();
 		}
+	}
+public:
+	HRESULT Fx() const noexcept
+	{
+		return CallInterfaceMethod<IX>(&IX::Fx);
 	}
 	HRESULT Fy() const noexcept
 	{
-		if(!m_pIUnknown) {
-			return E_NOINTERFACE;
-		}
-		try {
-			_com_ptr_t<_com_IIID<IY, &__uuidof(IY)>> pIY(m_pIUnknown);
-			if(pIY) {
-				pIY->Fy();
-				return S_OK;
-			}
-			return E_NOTIMPL;
-		}
-		catch(const _com_error& e) {
-			return e.Error();
-		}
+		return CallInterfaceMethod<IY>(&IY::Fy);
 	}
 	HRESULT Fz() const noexcept
 	{
-		if(!m_pIUnknown) {
-			return E_NOINTERFACE;
-		}
-		try {
-			_com_ptr_t<_com_IIID<IZ, &__uuidof(IZ)>> pIZ(m_pIUnknown);
-			if(pIZ) {
-				pIZ->Fz();
-				return S_OK;
-			}
-			return E_NOTIMPL;
-		}
-		catch(const _com_error& e) {
-			return e.Error();
-		}
+		return CallInterfaceMethod<IZ>(&IZ::Fz);
 	}
 private:
 	DllHelper m_dll;
