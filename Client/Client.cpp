@@ -8,8 +8,25 @@
 #include <string>
 #include <source_location>
 
+#include <gsl/narrow>
+
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>
+
 namespace
 {
+	std::string wstringToUtf8(std::wstring_view wstr)
+	{
+		const auto in_size = gsl::narrow<int>(std::ssize(wstr));
+		const int sizeNeeded{WideCharToMultiByte(CP_UTF8, 0, wstr.data(), in_size, nullptr, 0, nullptr, nullptr)};
+		std::string utf8Str(sizeNeeded, 0);
+		WideCharToMultiByte(CP_UTF8, 0, wstr.data(), in_size, utf8Str.data(), sizeNeeded, nullptr, nullptr);
+		if(!utf8Str.empty() && utf8Str.back() == '\0') // Ensure null terminator is removed
+			utf8Str.pop_back(); // Remove null terminator
+		return utf8Str;
+	}
+
+
 	constexpr unsigned long forLog(HRESULT hr) noexcept
 	{
 		return hr;
@@ -42,7 +59,17 @@ int main()
 		return 1;
 	}
 	trace("get IX");
-	auto res = wrapper.Fx();
+	std::wstring version{L"Unknown"};
+	auto res = wrapper.GetVersion(version);
+	if(FAILED(res)) {
+		trace(std::format("GetVersion failed with error: {:#10x}", forLog(res)).c_str());
+	}
+	else {
+		trace(std::format("GetVersion succeeded : {}", wstringToUtf8(version)).c_str());
+	}
+
+	trace("get IX");
+	res = wrapper.Fx();
 	if (FAILED(res)) {
 		trace(std::format("Fx failed with error: {:#10x}", forLog(res)).c_str());
 	}

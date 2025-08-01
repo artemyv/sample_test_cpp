@@ -1,3 +1,6 @@
 [submodule "Deps/dllhelper"]
 	path = Deps/dllhelper
 	url = https://github.com/artemyv/dllhelper
+[submodule "Deps/gsl"]
+	path = Deps/gsl
+	url = https://github.com/microsoft/GSL.git

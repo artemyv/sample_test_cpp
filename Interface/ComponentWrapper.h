@@ -3,6 +3,7 @@
 #include "../Deps/dllhelper/dllhelper.hpp"
 #include "IFace.h"
 #include <comdef.h>
+#include <string>
 
 class ComponentWrapper
 {
@@ -61,6 +62,35 @@ public:
 	{
 		return CallInterfaceMethod<IZ>(&IZ::Fz);
 	}
+	HRESULT GetVersion(std::wstring& version) const noexcept
+	{
+		if(!m_pIUnknown) {
+			return E_NOINTERFACE;
+		}
+		try {
+			_com_ptr_t<_com_IIID<IX2, &__uuidof(IX2)>> ptr(m_pIUnknown);
+			if(ptr) {
+				_bstr_t result;
+				result.Attach(ptr->GetVersion());
+				if(result.length() > 0) {
+					version = std::wstring(result.operator const wchar_t* (), result.length());
+					return S_OK;
+				}
+				return S_FALSE;
+			}
+			return E_NOTIMPL;
+		}
+		catch(const _com_error& e) {
+			return e.Error();
+		}
+		catch(std::bad_alloc&) {
+			return E_OUTOFMEMORY;
+		}
+		catch(...) {
+			return E_FAIL; // Catch-all for any other exceptions
+		}
+	}
+
 private:
 	DllHelper m_dll;
 	

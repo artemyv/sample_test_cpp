@@ -7,6 +7,8 @@
 #include <IFace.h>
 #include <format>
 #include <source_location>
+#include <comutil.h>
+#include <comdef.h> // For linking with right comsuppw.lib or comsuppwd.lib. (If you must compile with /Zc:wchar_t-, use comsupp.lib.) If you include the comdef.h header file, the correct library is specified for you. 
 namespace
 {
 	static void trace(const char* msg, std::source_location loc = std::source_location::current()) noexcept
@@ -21,16 +23,22 @@ namespace
 	//
 	// Компонент
 	//
-	class CA: public IX, public IY
+	class CA: public IX2, public IY
 	{
 		// Реализация IUnknown
 		HRESULT __stdcall QueryInterface(const IID& iid, void** ppv) override;
 		ULONG __stdcall AddRef() override;
 		ULONG __stdcall Release() override;
 		// Реализация интерфейса IX
-		void __stdcall Fx() noexcept override { trace("Fx"); }
+		void Fx() noexcept override { trace("Fx"); }
+		BSTR GetVersion() const override
+		{
+			_bstr_t version(L"1.0.0");
+			return version.Detach(); // Возвращаем BSTR
+		}
+
 		// Реализация интерфейса IY
-		void __stdcall Fy() noexcept override  { trace("Fy"); }
+		void Fy() noexcept override  { trace("Fy"); }
 	public:
 		// Деструктор
 		virtual ~CA() { trace("Destructing"); }
@@ -56,6 +64,10 @@ namespace
 		else if(iid == __uuidof(IX)) {
 			trace("return IX");
 			*ppv = static_cast<IX*>(this);
+		}
+		else if(iid == __uuidof(IX2)) {
+			trace("return IX");
+			*ppv = static_cast<IX2*>(this);
 		}
 		else if(iid == __uuidof(IY)) {
 			trace("return IY");
