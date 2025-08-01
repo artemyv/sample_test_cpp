@@ -1,6 +1,6 @@
 ﻿;
 ; Файл определения модуля для Cmpnt1
 ;
-LIBRARY Component.dll
+LIBRARY ComponentYZ.dll
 EXPORTS
 CreateInstance @1 PRIVATE

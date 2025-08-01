@@ -1,10 +1,9 @@
 ﻿//
-// Cmpnt1.cpp
-// Компиляция: cl /LD Cmpnt1.cpp GUIDs.cpp UUID.lib Cmpnt1.def
+// Cmpnt2.cpp
 //
 #include <iostream>
 #include <objbase.h>
-#include "IFace.h"
+#include <IFace.h>
 #include <format>
 #include <source_location>
 namespace
@@ -12,7 +11,7 @@ namespace
 	static void trace(const char* msg, std::source_location loc = std::source_location::current()) noexcept
 	{
 		try {
-			std::puts(std::format("Component 1:\t{:40} [{}:{}]", msg, loc.function_name(), loc.line()).c_str());
+			std::puts(std::format("Component 2:\t{:40} [{}:{}]", msg, loc.function_name(), loc.line()).c_str());
 		}
 		catch(std::exception&) {
 			//swallow exceptions from std::format
@@ -21,7 +20,7 @@ namespace
 	//
 	// Компонент
 	//
-	class CA: public IX, public IY
+	class CA: public IX, public IZ
 	{
 		// Реализация IUnknown
 		HRESULT __stdcall QueryInterface(const IID& iid, void** ppv) override;
@@ -30,7 +29,7 @@ namespace
 		// Реализация интерфейса IX
 		void __stdcall Fx() noexcept override { trace("Fx"); }
 		// Реализация интерфейса IY
-		void __stdcall Fy() noexcept override  { trace("Fy"); }
+		void __stdcall Fz() noexcept override  { trace("Fz"); }
 	public:
 		// Деструктор
 		virtual ~CA() { trace("Destructing"); }
@@ -57,9 +56,9 @@ namespace
 			trace("return IX");
 			*ppv = static_cast<IX*>(this);
 		}
-		else if(iid == __uuidof(IY)) {
-			trace("return IY");
-			*ppv = static_cast<IY*>(this);
+		else if(iid == __uuidof(IZ)) {
+			trace("return IZ");
+			*ppv = static_cast<IZ*>(this);
 		}
 		else {
 			trace("not supported");

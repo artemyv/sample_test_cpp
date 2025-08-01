@@ -176,7 +176,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="..\Deps\dllhelper\dllhelper.hpp" />
     <ClInclude Include="..\Interface\IFace.h" />
   </ItemGroup>
   <ItemGroup>

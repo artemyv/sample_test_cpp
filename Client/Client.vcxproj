@@ -167,6 +167,7 @@
     <ClCompile Include="Client.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\Deps\dllhelper\dllhelper.hpp" />
     <ClInclude Include="..\Interface\ComponentWrapper.h" />
     <ClInclude Include="..\Interface\IFace.h" />
   </ItemGroup>

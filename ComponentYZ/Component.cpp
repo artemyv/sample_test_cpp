@@ -1,10 +1,10 @@
 ﻿//
-// Cmpnt1.cpp
+// Cmpnt3.cpp
 // Компиляция: cl /LD Cmpnt1.cpp GUIDs.cpp UUID.lib Cmpnt1.def
 //
 #include <iostream>
 #include <objbase.h>
-#include "IFace.h"
+#include <IFace.h>
 #include <format>
 #include <source_location>
 namespace
@@ -12,7 +12,7 @@ namespace
 	static void trace(const char* msg, std::source_location loc = std::source_location::current()) noexcept
 	{
 		try {
-			std::puts(std::format("Component 1:\t{:40} [{}:{}]", msg, loc.function_name(), loc.line()).c_str());
+			std::puts(std::format("Component 3:\t{:40} [{}:{}]", msg, loc.function_name(), loc.line()).c_str());
 		}
 		catch(std::exception&) {
 			//swallow exceptions from std::format
@@ -21,14 +21,14 @@ namespace
 	//
 	// Компонент
 	//
-	class CA: public IX, public IY
+	class CA: public IZ, public IY
 	{
 		// Реализация IUnknown
 		HRESULT __stdcall QueryInterface(const IID& iid, void** ppv) override;
 		ULONG __stdcall AddRef() override;
 		ULONG __stdcall Release() override;
 		// Реализация интерфейса IX
-		void __stdcall Fx() noexcept override { trace("Fx"); }
+		void __stdcall Fz() noexcept override { trace("Fz"); }
 		// Реализация интерфейса IY
 		void __stdcall Fy() noexcept override  { trace("Fy"); }
 	public:
@@ -51,11 +51,11 @@ namespace
 		}
 		if(iid == __uuidof(IUnknown)) {
 			trace("return IUnknown");
-			*ppv = static_cast<IX*>(this);
+			*ppv = static_cast<IZ*>(this);
 		}
-		else if(iid == __uuidof(IX)) {
+		else if(iid == __uuidof(IZ)) {
 			trace("return IX");
-			*ppv = static_cast<IX*>(this);
+			*ppv = static_cast<IZ*>(this);
 		}
 		else if(iid == __uuidof(IY)) {
 			trace("return IY");
@@ -91,7 +91,7 @@ namespace
 //
 extern "C" IUnknown * CreateInstance()
 {
-	IUnknown* pI = static_cast<IX*>(new CA);
+	IUnknown* pI = static_cast<IZ*>(new CA);
 	pI->AddRef();
 	return pI;
 }

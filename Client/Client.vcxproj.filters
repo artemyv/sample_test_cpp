@@ -26,5 +26,8 @@
     <ClInclude Include="..\Interface\ComponentWrapper.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\Deps\dllhelper\dllhelper.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

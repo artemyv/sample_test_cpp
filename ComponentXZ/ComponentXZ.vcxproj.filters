@@ -15,13 +15,7 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="IFace.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ComponentWrapper.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Deps\dllhelper\dllhelper.hpp">
+    <ClInclude Include="..\Interface\IFace.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -34,7 +28,7 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Component.def">
+    <None Include="ComponentXZ.def">
       <Filter>Source Files</Filter>
     </None>
   </ItemGroup>
