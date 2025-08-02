@@ -32,8 +32,8 @@ public:
 		return m_pIUnknown;
 	}
 private:
-	template<typename Interface, typename ...Args, typename F = HRESULT(*)(HRESULT)>
-	HRESULT CallInterfaceMethod(HRESULT(Interface::* method)(Args...), Args&& ...args, F handle_result = [](HRESULT hr) {return hr; }) const noexcept
+	template<typename Interface, typename F >
+	HRESULT CallInterfaceMethod(F&& call_method_result) const noexcept
 	{
 		if(!m_pIUnknown) {
 			return E_NOINTERFACE;
@@ -41,8 +41,7 @@ private:
 		try {
 			_com_ptr_t<_com_IIID<Interface, &__uuidof(Interface)>> ptr(m_pIUnknown);
 			if(ptr) {
-				auto result = (ptr->*method)(std::forward<Args>(args)...);
-				return handle_result(result);
+				return  std::invoke(std::forward<F>(call_method_result), ptr.GetInterfacePtr());
 			}
 			return E_NOTIMPL;
 		}
@@ -59,26 +58,28 @@ private:
 public:
 	HRESULT Fx() const noexcept
 	{
-		return CallInterfaceMethod(&IX::Fx);
+		return CallInterfaceMethod<IX>([](IX* ptr) {return ptr->Fx(); });
 	}
 	HRESULT Fy() const noexcept
 	{
-		return CallInterfaceMethod(&IY::Fy);
+		return CallInterfaceMethod<IY>([](IY* ptr) {return ptr->Fy(); });
 	}
 	HRESULT Fz() const noexcept
 	{
-		return CallInterfaceMethod(&IZ::Fz);
+		return CallInterfaceMethod<IZ>([](IZ* ptr) {return ptr->Fz(); });
 	}
 	HRESULT GetVersion(std::wstring& version) const noexcept
 	{
-		BSTR result = nullptr;
-		return CallInterfaceMethod(&IX2::GetVersion, &result, [&result, &version](HRESULT hr) {
+		return CallInterfaceMethod<IX2>([&version](IX2* ptr) {
+			BSTR result = nullptr;
+			auto hr = ptr->GetVersion(&result);
 			if(FAILED(hr)) {
 				return hr;
 			}
-			if(result && ::SysStringLen(result) > 0) {
-				version = std::wstring(result, ::SysStringLen(result));
-				::SysFreeString(result);
+			_bstr_t bstrResult(result, false); 
+			if(bstrResult.length() > 0)
+			{
+				version = std::wstring(bstrResult.operator const wchar_t *(), bstrResult.length());
 				return S_OK;
 			}
 			return S_FALSE;

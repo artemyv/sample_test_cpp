@@ -2,3 +2,8 @@
 /bin
 /obj
 *.user
+/Interface/IFace.h
+/Interface/IFace_i.c
+/Interface/IFace_p.c
+/Interface/dlldata.c
+/Interface/x64
