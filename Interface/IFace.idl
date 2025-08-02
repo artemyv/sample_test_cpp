@@ -38,3 +38,14 @@ interface IZ : IUnknown
 {
     HRESULT Fz();
 };
+
+[
+    uuid(32bb8324-b41b-11cf-a6bb-0080c7b2d682),
+    object
+]
+interface IRandom : IUnknown
+{
+	// Generates a JSON string with random numbers
+	// count - number of random numbers to generate
+    HRESULT GenerateRandomNumbers([in] int count, [out, retval]BSTR* numbers_json);
+};

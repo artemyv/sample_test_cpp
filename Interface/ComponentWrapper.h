@@ -58,21 +58,24 @@ private:
 public:
 	HRESULT Fx() const noexcept
 	{
-		return CallInterfaceMethod<IX>([](IX* ptr) {return ptr->Fx(); });
+		return CallInterfaceMethod<IX>([](IX* ptr) {if(ptr) return ptr->Fx(); return E_NOTIMPL; });
 	}
 	HRESULT Fy() const noexcept
 	{
-		return CallInterfaceMethod<IY>([](IY* ptr) {return ptr->Fy(); });
+		return CallInterfaceMethod<IY>([](IY* ptr) {if(ptr) return ptr->Fy(); return E_NOTIMPL; });
 	}
 	HRESULT Fz() const noexcept
 	{
-		return CallInterfaceMethod<IZ>([](IZ* ptr) {return ptr->Fz(); });
+		return CallInterfaceMethod<IZ>([](IZ* ptr) {if(ptr) return ptr->Fz();  return E_NOTIMPL; });
 	}
 	HRESULT GetVersion(std::wstring& version) const noexcept
 	{
 		return CallInterfaceMethod<IX2>([&version](IX2* ptr) {
 			BSTR result = nullptr;
-			auto hr = ptr->GetVersion(&result);
+			if(!ptr) {
+				return E_NOTIMPL;
+			}
+			const auto hr = ptr->GetVersion(&result);
 			if(FAILED(hr)) {
 				return hr;
 			}
@@ -80,6 +83,26 @@ public:
 			if(bstrResult.length() > 0)
 			{
 				version = std::wstring(bstrResult.operator const wchar_t *(), bstrResult.length());
+				return S_OK;
+			}
+			return S_FALSE;
+		});
+	}
+	HRESULT GenerateRandomNumbers(int count, std::wstring& numbers_json) const noexcept
+	{
+		return CallInterfaceMethod<IRandom>([&numbers_json, count](IRandom* ptr) {
+			BSTR result = nullptr;
+			if(!ptr) {
+				return E_NOTIMPL;
+			}
+			const auto hr = ptr->GenerateRandomNumbers(count, &result);
+			if(FAILED(hr)) {
+				return hr;
+			}
+			_bstr_t bstrResult(result, false); 
+			if(bstrResult.length() > 0)
+			{
+				numbers_json = std::wstring(bstrResult.operator const wchar_t *(), bstrResult.length());
 				return S_OK;
 			}
 			return S_FALSE;

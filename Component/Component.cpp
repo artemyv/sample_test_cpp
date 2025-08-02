@@ -2,13 +2,14 @@
 // Cmpnt1.cpp
 // Компиляция: cl /LD Cmpnt1.cpp GUIDs.cpp UUID.lib Cmpnt1.def
 //
-#include <iostream>
-#include <objbase.h>
+#include <cstdio>
 #include <IFace.h>
 #include <format>
 #include <source_location>
 #include <comutil.h>
 #include <comdef.h> // For linking with right comsuppw.lib or comsuppwd.lib. (If you must compile with /Zc:wchar_t-, use comsupp.lib.) If you include the comdef.h header file, the correct library is specified for you. 
+#include <random>
+#include <vector>
 namespace
 {
 	static void trace(const char* msg, std::source_location loc = std::source_location::current()) noexcept
@@ -23,7 +24,7 @@ namespace
 	//
 	// Компонент
 	//
-	class CA: public IX2, public IY
+	class CA: public IX2, public IRandom
 	{
 		// Реализация IUnknown
 		HRESULT __stdcall QueryInterface(const IID& iid, void** ppv) override;
@@ -54,7 +55,46 @@ namespace
 		}
 
 		// Реализация интерфейса IY
-		HRESULT STDMETHODCALLTYPE Fy(void) override { trace("Fy"); return S_OK; }
+		HRESULT STDMETHODCALLTYPE GenerateRandomNumbers(
+			/* [in] */ int count,
+			/* [retval][out] */ BSTR* numbers_json) override
+		{
+			if(numbers_json == nullptr) {
+				trace("numbers_json is null");
+				return E_POINTER; // Проверка на нулевой указатель
+			}
+
+			std::random_device rd;  // a seed source for the random number engine
+			std::mt19937 gen(rd()); // mersenne_twister_engine seeded with rd()
+			std::uniform_int_distribution<> distrib(1, 6);
+
+			// Генерация случайных чисел
+			std::wstring numbers = LR"({"numbers": [)";
+			for(int i = 0; i < count; ++i) {
+				numbers += std::format(L"{},",distrib(gen)); // Генерируем случайное число от 1 до 6
+			}
+			if(!numbers.empty() && numbers.back() == ',') {
+				numbers.pop_back(); // Удаляем последнюю запятую
+			}
+			numbers += L"]}"; // Закрываем JSON-объект
+			try {
+				_bstr_t json_result(numbers.c_str());
+				*numbers_json = json_result.Detach(); // Передаем владение BSTR вызывающему коду
+				return S_OK; // Возвращаем BSTR
+			}
+			catch(const _com_error& e) {
+				trace(std::format("Error: {:#10x}", e.Error()).c_str());
+				return e.Error(); // Возвращаем HRESULT ошибки
+			}
+			catch(const std::bad_alloc& e) {
+				trace(std::format("Exception: {}", e.what()).c_str());
+				return E_OUTOFMEMORY; 
+			}
+			catch(...) {
+				trace("Unknown exception occurred");
+				return E_FAIL; // Возвращаем общую ошибку
+			}
+		}
 	public:
 		// Деструктор
 		virtual ~CA() { trace("Destructing"); }
@@ -85,9 +125,9 @@ namespace
 			trace("return IX");
 			*ppv = static_cast<IX2*>(this);
 		}
-		else if(iid == __uuidof(IY)) {
-			trace("return IY");
-			*ppv = static_cast<IY*>(this);
+		else if(iid == __uuidof(IRandom)) {
+			trace("return IRandom");
+			*ppv = static_cast<IRandom*>(this);
 		}
 		else {
 			trace("not supported");
