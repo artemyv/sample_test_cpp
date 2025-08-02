@@ -1,4 +1,4 @@
-﻿//
+//
 // Cmpnt2.cpp
 //
 #include <iostream>

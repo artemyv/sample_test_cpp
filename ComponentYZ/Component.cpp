@@ -1,4 +1,4 @@
-﻿//
+//
 // Cmpnt3.cpp
 // Компиляция: cl /LD Cmpnt1.cpp GUIDs.cpp UUID.lib Cmpnt1.def
 //
