@@ -3,12 +3,24 @@
 #include "../Deps/dllhelper/dllhelper.hpp"
 #include "IFace.h"
 #include "Create.h"
-#include <comdef.h>
 #include <string>
+#include <memory>
+
+template<typename T>
+struct ComReleaser
+{
+	void operator()(T* ptr) const noexcept
+	{
+		if(ptr) ptr->Release();
+	}
+};
 
 class ComponentWrapper
 {
 public:
+	template<typename T>
+	using unique_com_ptr = std::unique_ptr<T, ComReleaser<T>>;
+
 	ComponentWrapper() = delete;
 	ComponentWrapper(const ComponentWrapper&) = delete; // Copy constructor
 	ComponentWrapper& operator=(const ComponentWrapper&) = delete; // Copy assignment
@@ -25,11 +37,11 @@ public:
 		if(!create)
 			return;
 
-		m_pIUnknown.Attach(create());
+		m_pIUnknown.reset(create());
 	}
 	operator bool() const noexcept
 	{
-		return m_pIUnknown;
+		return m_pIUnknown.get() != nullptr;
 	}
 private:
 	template<typename Interface, typename F >
@@ -38,40 +50,23 @@ private:
 		if(!m_pIUnknown) {
 			return E_NOINTERFACE;
 		}
-		try {
-			_com_ptr_t<_com_IIID<Interface, &__uuidof(Interface)>> ptr(m_pIUnknown);
-			if(ptr) {
-				return  std::invoke(std::forward<F>(call_method_result), ptr.GetInterfacePtr());
-			}
-			return E_NOTIMPL;
+		Interface* raw = nullptr;
+		const auto hr = m_pIUnknown->QueryInterface(&raw);
+		if(SUCCEEDED(hr) && raw) {
+			unique_com_ptr<Interface> ptr{raw};
+			return  std::invoke(std::forward<F>(call_method_result), ptr.get());
 		}
-		catch(const _com_error& e) {
-			return e.Error();
-		}
-		catch(std::bad_alloc&) {
-			return E_OUTOFMEMORY;
-		}
-		catch(...) {
-			return E_FAIL;
-		}
+		return E_NOTIMPL;
 	}
 public:
 	HRESULT Fx() const noexcept
 	{
 		return CallInterfaceMethod<IX>([](IX* ptr) {if(ptr) return ptr->Fx(); return E_NOTIMPL; });
 	}
-	HRESULT Fy() const noexcept
-	{
-		return CallInterfaceMethod<IY>([](IY* ptr) {if(ptr) return ptr->Fy(); return E_NOTIMPL; });
-	}
-	HRESULT Fz() const noexcept
-	{
-		return CallInterfaceMethod<IZ>([](IZ* ptr) {if(ptr) return ptr->Fz();  return E_NOTIMPL; });
-	}
-	HRESULT GetVersion(std::wstring& version) const noexcept
+	HRESULT GetVersion(std::string& version) const noexcept
 	{
 		return CallInterfaceMethod<IX2>([&version](IX2* ptr) {
-			BSTR result = nullptr;
+			const char* result = nullptr;
 			if(!ptr) {
 				return E_NOTIMPL;
 			}
@@ -79,30 +74,30 @@ public:
 			if(FAILED(hr)) {
 				return hr;
 			}
-			_bstr_t bstrResult(result, false); 
-			if(bstrResult.length() > 0)
+			if(result)
 			{
-				version = std::wstring(bstrResult.operator const wchar_t *(), bstrResult.length());
+				version = std::string(result);
+				ptr->FreeResult(result);
 				return S_OK;
 			}
 			return S_FALSE;
 		});
 	}
-	HRESULT GenerateRandomNumbers(int count, std::wstring& numbers_json) const noexcept
+	HRESULT GenerateRandomNumbers(int count, std::string& numbers_json) const noexcept
 	{
 		return CallInterfaceMethod<IRandom>([&numbers_json, count](IRandom* ptr) {
-			BSTR result = nullptr;
 			if(!ptr) {
 				return E_NOTIMPL;
 			}
+			const char* result = nullptr;
 			const auto hr = ptr->GenerateRandomNumbers(count, &result);
 			if(FAILED(hr)) {
 				return hr;
 			}
-			_bstr_t bstrResult(result, false); 
-			if(bstrResult.length() > 0)
+			if(result)
 			{
-				numbers_json = std::wstring(bstrResult.operator const wchar_t *(), bstrResult.length());
+				numbers_json = std::string(result);
+				ptr->FreeResult(result);
 				return S_OK;
 			}
 			return S_FALSE;
@@ -112,5 +107,5 @@ public:
 private:
 	DllHelper m_dll;
 	
-	_com_ptr_t<_com_IIID<IUnknown, &IID_IUnknown>> m_pIUnknown{};
+	unique_com_ptr<IUnknownReplica> m_pIUnknown{};
 };

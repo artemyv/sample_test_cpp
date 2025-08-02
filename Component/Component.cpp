@@ -9,7 +9,7 @@
 #include <comutil.h>
 #include <comdef.h> // For linking with right comsuppw.lib or comsuppwd.lib. (If you must compile with /Zc:wchar_t-, use comsupp.lib.) If you include the comdef.h header file, the correct library is specified for you. 
 #include <random>
-#include <vector>
+#include <string_view>
 namespace
 {
 	static void trace(const char* msg, std::source_location loc = std::source_location::current()) noexcept
@@ -27,26 +27,25 @@ namespace
 	class CA: public IX2, public IRandom
 	{
 		// Реализация IUnknown
-		HRESULT __stdcall QueryInterface(const IID& iid, void** ppv) override;
-		ULONG __stdcall AddRef() override;
-		ULONG __stdcall Release() override;
+		HRESULT __stdcall QueryInterface(const IID& iid, void** ppv) noexcept override;
+		ULONG __stdcall AddRef() noexcept override;
+		ULONG __stdcall Release() noexcept override;
 		// Реализация интерфейса IX
-		HRESULT STDMETHODCALLTYPE Fx(void)  override { trace("Fx"); return S_OK; }
-		HRESULT STDMETHODCALLTYPE GetVersion(
-			/* [retval][out] */ BSTR* version) override
+		HRESULT __stdcall Fx(void) noexcept override { trace("Fx"); return S_OK; }
+		HRESULT __stdcall GetVersion(const char** version) noexcept override
 		{
 			if(version == nullptr) {
 				trace("version is null");
 				return E_POINTER; // Проверка на нулевой указатель
 			}
 			try {
-				_bstr_t ver(L"1.0.0");
-				*version = ver.Detach(); // Передаем владение BSTR вызывающему коду
-				return S_OK; // Возвращаем BSTR
-			}
-			catch(const _com_error& e) {
-				trace(std::format("Error: {:#10x}", e.Error()).c_str());
-				return e.Error(); // Возвращаем HRESULT ошибки
+				std::string sversion("1.0.0");
+
+				auto version_ptr = std::make_unique<char[]>(sversion.size() + 1);
+				std::memcpy(version_ptr.get(), sversion.c_str(), sversion.size()); // include null terminator
+				*version = version_ptr.release(); // Передаем владение указателем вызывающему коду
+
+				return S_OK;
 			}
 			catch(const std::bad_alloc& e) {
 				trace(std::format("Exception: {}", e.what()).c_str());
@@ -55,9 +54,7 @@ namespace
 		}
 
 		// Реализация интерфейса IY
-		HRESULT STDMETHODCALLTYPE GenerateRandomNumbers(
-			/* [in] */ int count,
-			/* [retval][out] */ BSTR* numbers_json) override
+		HRESULT __stdcall GenerateRandomNumbers( int count, const char** numbers_json)  noexcept override
 		{
 			if(numbers_json == nullptr) {
 				trace("numbers_json is null");
@@ -69,22 +66,20 @@ namespace
 			std::uniform_int_distribution<> distrib(1, 6);
 
 			// Генерация случайных чисел
-			std::wstring numbers = LR"({"numbers": [)";
+			std::string numbers = R"({"numbers": [)";
 			for(int i = 0; i < count; ++i) {
-				numbers += std::format(L"{},",distrib(gen)); // Генерируем случайное число от 1 до 6
+				numbers += std::format("{},",distrib(gen)); // Генерируем случайное число от 1 до 6
 			}
 			if(!numbers.empty() && numbers.back() == ',') {
 				numbers.pop_back(); // Удаляем последнюю запятую
 			}
-			numbers += L"]}"; // Закрываем JSON-объект
-			try {
-				_bstr_t json_result(numbers.c_str());
-				*numbers_json = json_result.Detach(); // Передаем владение BSTR вызывающему коду
-				return S_OK; // Возвращаем BSTR
-			}
-			catch(const _com_error& e) {
-				trace(std::format("Error: {:#10x}", e.Error()).c_str());
-				return e.Error(); // Возвращаем HRESULT ошибки
+			numbers += "]}"; // Закрываем JSON-объект
+			try 
+			{
+				auto numbers_json_ptr = std::make_unique<char[]>(numbers.size() + 1);
+				std::memcpy(numbers_json_ptr.get(), numbers.c_str(), numbers.size() + 1); // include null terminator
+				*numbers_json = numbers_json_ptr.release(); // Передаем владение указателем вызывающему коду
+				return S_OK; 
 			}
 			catch(const std::bad_alloc& e) {
 				trace(std::format("Exception: {}", e.what()).c_str());
@@ -94,6 +89,12 @@ namespace
 				trace("Unknown exception occurred");
 				return E_FAIL; // Возвращаем общую ошибку
 			}
+		}
+
+		HRESULT __stdcall FreeResult(const char* result)  noexcept override
+		{
+			delete[] result;
+			return S_OK;
 		}
 	public:
 		// Деструктор
@@ -105,15 +106,15 @@ namespace
 		CA& operator=(CA&&) = delete; // Запрет перемещения
 
 	private:
-		long m_cRef{0};
+		unsigned long m_cRef{0U};
 	};
-	HRESULT __stdcall CA::QueryInterface(const IID& iid, void** ppv)
+	HRESULT __stdcall CA::QueryInterface(const IID& iid, void** ppv) noexcept
 	{
 		if(ppv == nullptr) {
 			trace("ppv is null");
 			return E_POINTER;
 		}
-		if(iid == __uuidof(IUnknown)) {
+		if(iid == __uuidof(IUnknownReplica)) {
 			trace("return IUnknown");
 			*ppv = static_cast<IX*>(this);
 		}
@@ -137,13 +138,13 @@ namespace
 		static_cast<IUnknown*>(*ppv)->AddRef();
 		return S_OK;
 	}
-	ULONG __stdcall CA::AddRef()
+	unsigned long __stdcall CA::AddRef() noexcept
 	{
 		const auto res = InterlockedIncrement(&m_cRef);
 		trace(std::format("AddRef: {}", res).c_str());
 		return res;
 	}
-	ULONG __stdcall CA::Release()
+	unsigned long __stdcall CA::Release() noexcept
 	{
 		const auto res = InterlockedDecrement(&m_cRef);
 		trace(std::format("Release: {}", res).c_str());
@@ -157,9 +158,9 @@ namespace
 //
 // Функция создания
 //
-extern "C" IUnknown * CreateInstance()
+extern "C" IUnknownReplica* CreateInstance()
 {
-	IUnknown* pI = static_cast<IX*>(new CA);
+	IUnknownReplica* pI = static_cast<IX*>(new CA);
 	pI->AddRef();
 	return pI;
 }

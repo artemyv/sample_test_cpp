@@ -15,8 +15,11 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <Midl Include="IFace.idl">
+    <ClInclude Include="IFace.h">
       <Filter>Source Files</Filter>
-    </Midl>
+    </ClInclude>
+    <ClInclude Include="ComponentWrapper.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

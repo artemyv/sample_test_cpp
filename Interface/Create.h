@@ -1,5 +1,5 @@
 ﻿#pragma once
 
-#include <unknwn.h>
+#include <IFace.h>
 
-extern "C" IUnknown* CreateInstance();
+extern "C" IUnknownReplica* CreateInstance();
