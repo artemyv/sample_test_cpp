@@ -30,15 +30,31 @@ namespace
 		ULONG __stdcall AddRef() override;
 		ULONG __stdcall Release() override;
 		// Реализация интерфейса IX
-		void Fx()  const noexcept override { trace("Fx"); }
-		BSTR GetVersion() const override
+		HRESULT STDMETHODCALLTYPE Fx(void)  override { trace("Fx"); return S_OK; }
+		HRESULT STDMETHODCALLTYPE GetVersion(
+			/* [retval][out] */ BSTR* version) override
 		{
-			_bstr_t version(L"1.0.0");
-			return version.Detach(); // Возвращаем BSTR
+			if(version == nullptr) {
+				trace("version is null");
+				return E_POINTER; // Проверка на нулевой указатель
+			}
+			try {
+				_bstr_t ver(L"1.0.0");
+				*version = ver.Detach(); // Передаем владение BSTR вызывающему коду
+				return S_OK; // Возвращаем BSTR
+			}
+			catch(const _com_error& e) {
+				trace(std::format("Error: {:#10x}", e.Error()).c_str());
+				return e.Error(); // Возвращаем HRESULT ошибки
+			}
+			catch(const std::bad_alloc& e) {
+				trace(std::format("Exception: {}", e.what()).c_str());
+				return E_OUTOFMEMORY; 
+			}
 		}
 
 		// Реализация интерфейса IY
-		void Fy() const noexcept override  { trace("Fy"); }
+		HRESULT STDMETHODCALLTYPE Fy(void) override { trace("Fy"); return S_OK; }
 	public:
 		// Деструктор
 		virtual ~CA() { trace("Destructing"); }

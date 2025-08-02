@@ -185,6 +185,11 @@
   <ItemGroup>
     <None Include="ComponentYZ.def" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Interface\Interface.vcxproj">
+      <Project>{c975f591-4f95-4ecb-a4b4-761e3a7cfe31}</Project>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

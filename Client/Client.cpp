@@ -3,15 +3,18 @@
 // Комиляция: cl Client1.cpp Create.cpp GUIDs.cpp UUID.lib
 //
 #include <ComponentWrapper.h>
+
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>
+
 #include <format>
 #include <iostream>
 #include <string>
+#include <string_view>
 #include <source_location>
 
 #include <gsl/narrow>
 
-#define WIN32_LEAN_AND_MEAN
-#include <windows.h>
 
 namespace
 {

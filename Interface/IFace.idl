@@ -1,0 +1,40 @@
+﻿// Iface.idl
+
+import "oaidl.idl";
+import "ocidl.idl";
+
+[
+    uuid(32bb8320-b41b-11cf-a6bb-0080c7b2d682),
+    object
+]
+interface IX : IUnknown
+{
+    HRESULT Fx();
+};
+
+[
+    uuid(32bb8323-b41b-11cf-a6bb-0080c7b2d682),
+    object
+]
+interface IX2 : IX
+{
+    HRESULT GetVersion([out, retval] BSTR* version);
+};
+
+[
+    uuid(32bb8321-b41b-11cf-a6bb-0080c7b2d682),
+    object
+]
+interface IY : IUnknown
+{
+    HRESULT Fy();
+};
+
+[
+    uuid(32bb8322-b41b-11cf-a6bb-0080c7b2d682),
+    object
+]
+interface IZ : IUnknown
+{
+    HRESULT Fz();
+};

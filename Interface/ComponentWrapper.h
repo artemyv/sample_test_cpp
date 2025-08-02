@@ -2,6 +2,7 @@
 
 #include "../Deps/dllhelper/dllhelper.hpp"
 #include "IFace.h"
+#include "Create.h"
 #include <comdef.h>
 #include <string>
 
@@ -31,8 +32,8 @@ public:
 		return m_pIUnknown;
 	}
 private:
-	template<typename Interface, typename Ret, typename F = HRESULT(*)(void)>
-	HRESULT CallInterfaceMethod(Ret(Interface::* method)() const, F handle_result = []() {return S_OK; }) const noexcept
+	template<typename Interface, typename ...Args, typename F = HRESULT(*)(HRESULT)>
+	HRESULT CallInterfaceMethod(HRESULT(Interface::* method)(Args...), Args&& ...args, F handle_result = [](HRESULT hr) {return hr; }) const noexcept
 	{
 		if(!m_pIUnknown) {
 			return E_NOINTERFACE;
@@ -40,14 +41,8 @@ private:
 		try {
 			_com_ptr_t<_com_IIID<Interface, &__uuidof(Interface)>> ptr(m_pIUnknown);
 			if(ptr) {
-				if constexpr(std::is_void_v<Ret>) {
-					(ptr->*method)();
-					return handle_result();
-				}
-				else {
-					auto result = (ptr->*method)();
-					return handle_result(result);
-				}
+				auto result = (ptr->*method)(std::forward<Args>(args)...);
+				return handle_result(result);
 			}
 			return E_NOTIMPL;
 		}
@@ -64,19 +59,23 @@ private:
 public:
 	HRESULT Fx() const noexcept
 	{
-		return CallInterfaceMethod<IX, void>(&IX::Fx);
+		return CallInterfaceMethod(&IX::Fx);
 	}
 	HRESULT Fy() const noexcept
 	{
-		return CallInterfaceMethod<IY, void>(&IY::Fy);
+		return CallInterfaceMethod(&IY::Fy);
 	}
 	HRESULT Fz() const noexcept
 	{
-		return CallInterfaceMethod<IZ, void>(&IZ::Fz);
+		return CallInterfaceMethod(&IZ::Fz);
 	}
 	HRESULT GetVersion(std::wstring& version) const noexcept
 	{
-		return CallInterfaceMethod<IX2, BSTR>(&IX2::GetVersion, [&version](BSTR& result) {
+		BSTR result = nullptr;
+		return CallInterfaceMethod(&IX2::GetVersion, &result, [&result, &version](HRESULT hr) {
+			if(FAILED(hr)) {
+				return hr;
+			}
 			if(result && ::SysStringLen(result) > 0) {
 				version = std::wstring(result, ::SysStringLen(result));
 				::SysFreeString(result);
