@@ -173,7 +173,6 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Client.cpp" />
-    <ClCompile Include="EncodingUtils.cpp" />
     <ClCompile Include="IOUtils.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -181,7 +180,6 @@
     <ClInclude Include="..\Interface\ComponentWrapper.h" />
     <ClInclude Include="..\Interface\Create.h" />
     <ClInclude Include="..\Interface\IFace.h" />
-    <ClInclude Include="EncodingUtils.h" />
     <ClInclude Include="IOUtils.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

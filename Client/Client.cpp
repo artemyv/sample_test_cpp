@@ -8,7 +8,6 @@
 
 #include <ComponentWrapper.h>
 #include "IOUtils.h"
-#include "EncodingUtils.h"
 
 namespace
 {
