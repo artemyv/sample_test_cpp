@@ -6,11 +6,12 @@ add_executable(Client
 
 target_link_libraries(Client PRIVATE Interface dllhelper GSL)
 
-target_include_directories(Client PRIVATE 
-    ${CMAKE_CURRENT_SOURCE_DIR}
-)
+target_include_directories(Client PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 
 # Platform-specific settings
-if(WIN32)
-    target_compile_definitions(Client PRIVATE WIN32_LEAN_AND_MEAN NOMINMAX)
-endif()
+target_compile_definitions(Client PRIVATE $<$<CXX_COMPILER_ID:MSVC>:WIN32_LEAN_AND_MEAN NOMINMAX>)
+
+target_compile_options(Client PRIVATE
+     $<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-Wall -Wextra -Wpedantic -Werror>
+     $<$<CXX_COMPILER_ID:MSVC>:/W4 /WX>
+    )
