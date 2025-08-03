@@ -22,5 +22,13 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(GSL)
 
+FetchContent_Declare(
+    stduuid
+    GIT_REPOSITORY https://github.com/mariusbancila/stduuid.git
+    GIT_TAG        v1.2.3 # or a commit hash or branch
+)
+FetchContent_MakeAvailable(stduuid)
+
+
 add_subdirectory(Component)
 add_subdirectory(Client)

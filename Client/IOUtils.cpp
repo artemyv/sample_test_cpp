@@ -8,16 +8,16 @@ void trace(std::string_view msg, std::source_location loc)
 	std::puts(std::format("Client 1:\t{:40} [{}:{}]", msg, loc.function_name(), loc.line()).c_str());
 }
 
-std::wstring readName()
+std::string readName()
 {
-	std::wstring name;
+	std::string name;
 	std::puts("Enter the dll name[Component.dll]: ");
-	std::getline(std::wcin, name);
+	std::getline(std::cin, name);
 	if (!name.empty() && name.back() == L'\n') {
 		name.pop_back();
 	}
 	if(name.empty()) {
-		name = L"Component.dll";
+		name = "Component.dll";
 	}
 	return name;
 }

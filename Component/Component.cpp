@@ -27,12 +27,12 @@ namespace
 	class CA: public IX2, public IRandom
 	{
 		// Реализация IUnknown
-		int __stdcall QueryInterface(const IID& iid, void** ppv) noexcept override;
-		unsigned long __stdcall AddRef() noexcept override;
-		unsigned long __stdcall Release() noexcept override;
+		int  QueryInterface(const uuids::uuid& iid, void** ppv) noexcept override;
+		unsigned long  AddRef() noexcept override;
+		unsigned long  Release() noexcept override;
 		// Реализация интерфейса IX
-		int __stdcall Fx(void) noexcept override { trace("Fx"); return std::error_code{}.value(); }
-		int __stdcall GetVersion(const char** version) noexcept override
+		int  Fx(void) noexcept override { trace("Fx"); return std::error_code{}.value(); }
+		int  GetVersion(const char** version) noexcept override
 		{
 			if(version == nullptr) {
 				trace("version is null");
@@ -54,7 +54,7 @@ namespace
 		}
 
 		// Реализация интерфейса IY
-		int __stdcall GenerateRandomNumbers( int count, const char** numbers_json)  noexcept override
+		int  GenerateRandomNumbers( int count, const char** numbers_json)  noexcept override
 		{
 			if(numbers_json == nullptr) {
 				trace("numbers_json is null");
@@ -91,7 +91,7 @@ namespace
 			}
 		}
 
-		int __stdcall FreeResult(const char* result)  noexcept override
+		int  FreeResult(const char* result)  noexcept override
 		{
 			delete[] result;
 			return 0;
@@ -108,25 +108,25 @@ namespace
 	private:
 		std::atomic<unsigned long> m_cRef{0U};
 	};
-	int __stdcall CA::QueryInterface(const IID& iid, void** ppv) noexcept
+	int  CA::QueryInterface(const uuids::uuid& iid, void** ppv) noexcept
 	{
 		if(ppv == nullptr) {
 			trace("ppv is null");
 			return std::make_error_code(std::errc::invalid_argument).value();
 		}
-		if(iid == __uuidof(IUnknownReplica)) {
+		if(iid == IUnknownReplica::iid) {
 			trace("return IUnknown");
 			*ppv = static_cast<IX*>(this);
 		}
-		else if(iid == __uuidof(IX)) {
+		else if(iid == IX::iid) {
 			trace("return IX");
 			*ppv = static_cast<IX*>(this);
 		}
-		else if(iid == __uuidof(IX2)) {
+		else if(iid == IX2::iid) {
 			trace("return IX");
 			*ppv = static_cast<IX2*>(this);
 		}
-		else if(iid == __uuidof(IRandom)) {
+		else if(iid == IRandom::iid) {
 			trace("return IRandom");
 			*ppv = static_cast<IRandom*>(this);
 		}
@@ -138,13 +138,13 @@ namespace
 		static_cast<IUnknownReplica*>(*ppv)->AddRef();
 		return 0;
 	}
-	unsigned long __stdcall CA::AddRef() noexcept
+	unsigned long  CA::AddRef() noexcept
 	{
 		const auto res = m_cRef.fetch_add(1, std::memory_order_relaxed) + 1;
 		trace(std::format("AddRef: {}", res).c_str());
 		return res;
 	}
-	unsigned long __stdcall CA::Release() noexcept
+	unsigned long  CA::Release() noexcept
 	{
 		const auto res = m_cRef.fetch_sub(1, std::memory_order_acq_rel) - 1;
 		trace(std::format("Release: {}", res).c_str());

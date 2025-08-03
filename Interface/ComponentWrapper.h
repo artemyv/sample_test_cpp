@@ -27,7 +27,7 @@ public:
 	ComponentWrapper(ComponentWrapper&&) = delete; // Move constructor
 	ComponentWrapper& operator=(ComponentWrapper&&) = delete; // Move assignment
 	~ComponentWrapper() = default;
-	explicit ComponentWrapper(const wchar_t* path) noexcept:
+	explicit ComponentWrapper(const char* path) noexcept:
 		m_dll(path)
 	{
 		if(!m_dll)
@@ -42,6 +42,11 @@ public:
 	operator bool() const noexcept
 	{
 		return m_pIUnknown.get() != nullptr;
+	}
+	std::error_code error_code(std::string& message) const noexcept
+	{
+		message = m_dll.error_message();
+		return m_dll.error_code();
 	}
 private:
 	template<typename Interface, typename F >

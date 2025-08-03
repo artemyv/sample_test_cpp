@@ -1,41 +1,45 @@
 #pragma once
 
-#include <guiddef.h>
+#include <uuid.h>
 
-struct __declspec(uuid("00000000-0000-0000-C000-000000000046")) IUnknownReplica
+struct IUnknownReplica
 {
 public:
-    virtual int __stdcall QueryInterface(
-        /* [in] */ REFIID riid,
+    static constexpr auto iid = *uuids::uuid::from_string("00000000-0000-0000-C000-000000000046");
+    virtual int  QueryInterface(
+        /* [in] */ const uuids::uuid& riid,
         /* [iid_is][out] */ void ** ppvObject) noexcept = 0;
 
-    virtual unsigned long __stdcall AddRef(void) noexcept = 0;
+    virtual unsigned long  AddRef(void) noexcept = 0;
 
-    virtual unsigned long __stdcall Release(void) noexcept = 0;
+    virtual unsigned long  Release(void) noexcept = 0;
 
     template<class Q>
-    int __stdcall QueryInterface(Q** pp) noexcept
+    int  QueryInterface(Q** pp) noexcept
     {
-        return QueryInterface(__uuidof(Q), (void**)pp);
+        return QueryInterface(Q::iid, (void**)pp);
     }
 };
 //MIDL_INTERFACE("32bb8320-b41b-11cf-a6bb-0080c7b2d682")
-struct __declspec(uuid("32bb8320-b41b-11cf-a6bb-0080c7b2d682")) IX : public IUnknownReplica
+struct  IX : public IUnknownReplica
 {
 public:
-    virtual int __stdcall Fx( void) noexcept = 0;
+    static constexpr auto iid = *uuids::uuid::from_string("32bb8320-b41b-11cf-a6bb-0080c7b2d682");
+    virtual int  Fx( void) noexcept = 0;
 };
     
-struct __declspec(uuid("32bb8323-b41b-11cf-a6bb-0080c7b2d682")) IX2 : public IX
+struct IX2 : public IX
 {
 public:
-    virtual int __stdcall GetVersion(const char ** version) noexcept = 0;
-	virtual int __stdcall FreeResult(const char *  version) noexcept = 0;
+    static constexpr auto iid = *uuids::uuid::from_string("32bb8323-b41b-11cf-a6bb-0080c7b2d682");
+    virtual int  GetVersion(const char ** version) noexcept = 0;
+	virtual int  FreeResult(const char *  version) noexcept = 0;
 };
     
-struct __declspec(uuid("32bb8324-b41b-11cf-a6bb-0080c7b2d682")) IRandom : public IUnknownReplica
+struct IRandom : public IUnknownReplica
 {
 public:
-    virtual int __stdcall GenerateRandomNumbers( int count, const char** numbers_json) noexcept = 0;
-    virtual int __stdcall FreeResult(char const* numbers_json) noexcept = 0;
+    static constexpr auto iid = *uuids::uuid::from_string("32bb8324-b41b-11cf-a6bb-0080c7b2d682");
+    virtual int  GenerateRandomNumbers( int count, const char** numbers_json) noexcept = 0;
+    virtual int  FreeResult(char const* numbers_json) noexcept = 0;
 };

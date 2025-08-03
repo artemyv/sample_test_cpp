@@ -16,12 +16,14 @@ int main()
 {
 	// Считать имя компонента
 
-	std::wstring name = readName();
+	std::string name = readName();
 	trace("get IUnknown");
 	ComponentWrapper wrapper(name.c_str());
 
 	if(!wrapper) {
-		trace("CallCreateInstance failed");
+		std::string error;
+		[[maybe_unused]]const auto err = wrapper.error_code(error);
+		trace(std::format("CallCreateInstance failed: {}", error));
 		return 1;
 	}
 	trace("get IX");

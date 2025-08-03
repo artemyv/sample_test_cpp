@@ -4,7 +4,7 @@ add_executable(Client
     IOUtils.h
 )
 
-target_link_libraries(Client PRIVATE Interface dllhelper GSL)
+target_link_libraries(Client PRIVATE Interface dllhelper GSL stduuid)
 
 target_include_directories(Client PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 
