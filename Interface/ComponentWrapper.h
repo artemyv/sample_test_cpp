@@ -1,11 +1,11 @@
 #pragma once
 
-#include "../Deps/dllhelper/dllhelper.hpp"
+#include <dllhelper.hpp>
 #include "IFace.h"
 #include "Create.h"
 #include <string>
 #include <memory>
-
+#include <system_error>
 template<typename T>
 struct ComReleaser
 {
@@ -45,62 +45,65 @@ public:
 	}
 private:
 	template<typename Interface, typename F >
-	HRESULT CallInterfaceMethod(F&& call_method_result) const noexcept
+	std::error_code CallInterfaceMethod(F&& call_method_result) const noexcept
 	{
 		if(!m_pIUnknown) {
-			return E_NOINTERFACE;
+			return std::make_error_code(std::errc::invalid_argument);
 		}
 		Interface* raw = nullptr;
-		const auto hr = m_pIUnknown->QueryInterface(&raw);
-		if(SUCCEEDED(hr) && raw) {
+		const std::error_code ec(m_pIUnknown->QueryInterface(&raw), std::system_category());
+		if(!ec && raw) {
 			unique_com_ptr<Interface> ptr{raw};
 			return  std::invoke(std::forward<F>(call_method_result), ptr.get());
 		}
-		return E_NOTIMPL;
+		return ec;
 	}
 public:
-	HRESULT Fx() const noexcept
+	std::error_code Fx() const noexcept
 	{
-		return CallInterfaceMethod<IX>([](IX* ptr) {if(ptr) return ptr->Fx(); return E_NOTIMPL; });
+		return CallInterfaceMethod<IX>([](IX* ptr) 
+			{
+				if(ptr) 
+					return std::error_code(ptr->Fx(), std::system_category()); 
+				return std::make_error_code(std::errc::not_supported);
+			});
 	}
-	HRESULT GetVersion(std::string& version) const noexcept
+	std::error_code GetVersion(std::string& version) const noexcept
 	{
 		return CallInterfaceMethod<IX2>([&version](IX2* ptr) {
 			const char* result = nullptr;
 			if(!ptr) {
-				return E_NOTIMPL;
+				return std::make_error_code(std::errc::invalid_argument);
 			}
-			const auto hr = ptr->GetVersion(&result);
-			if(FAILED(hr)) {
-				return hr;
+			const std::error_code ec(ptr->GetVersion(&result), std::system_category());
+			if(ec) {
+				return ec;
 			}
 			if(result)
 			{
 				version = std::string(result);
 				ptr->FreeResult(result);
-				return S_OK;
 			}
-			return S_FALSE;
+			return std::error_code{};
 		});
 	}
-	HRESULT GenerateRandomNumbers(int count, std::string& numbers_json) const noexcept
+	std::error_code  GenerateRandomNumbers(int count, std::string& numbers_json) const noexcept
 	{
 		return CallInterfaceMethod<IRandom>([&numbers_json, count](IRandom* ptr) {
 			if(!ptr) {
-				return E_NOTIMPL;
+				return std::make_error_code(std::errc::invalid_argument);
 			}
 			const char* result = nullptr;
-			const auto hr = ptr->GenerateRandomNumbers(count, &result);
-			if(FAILED(hr)) {
-				return hr;
+			const std::error_code ec(ptr->GenerateRandomNumbers(count, &result), std::system_category());
+			if(ec) {
+				return ec;
 			}
 			if(result)
 			{
 				numbers_json = std::string(result);
 				ptr->FreeResult(result);
-				return S_OK;
 			}
-			return S_FALSE;
+			return std::error_code{};
 		});
 	}
 

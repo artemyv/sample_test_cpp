@@ -9,13 +9,6 @@
 #include <ComponentWrapper.h>
 #include "IOUtils.h"
 
-namespace
-{
-	constexpr unsigned long forLog(HRESULT hr) noexcept
-	{
-		return hr;
-	}
-}
 //
 // Клиент1
 //
@@ -35,8 +28,8 @@ int main()
 	{
 		std::string version{"Unknown"};
 		const auto res = wrapper.GetVersion(version);
-		if(FAILED(res)) {
-			trace(std::format("GetVersion failed with error: {:#10x}", forLog(res)));
+		if(res) {
+			trace(std::format("GetVersion failed with error: {}", res.message()));
 		}
 		else {
 			trace(std::format("GetVersion succeeded : {}", version));
@@ -46,8 +39,8 @@ int main()
 	trace("get IX");
 	{
 		const auto res = wrapper.Fx();
-		if(FAILED(res)) {
-			trace(std::format("Fx failed with error: {:#10x}", forLog(res)));
+		if(res) {
+			trace(std::format("Fx failed with error: {}", res.message()));
 		}
 		else {
 			trace("Fx succeeded");
@@ -57,8 +50,8 @@ int main()
 	{
 		std::string numbers_json;
 		const auto res = wrapper.GenerateRandomNumbers(25, numbers_json);
-		if(FAILED(res)) {
-			trace(std::format("GenerateRandomNumbers failed with error: {:#10x}", forLog(res)));
+		if(res) {
+			trace(std::format("GenerateRandomNumbers failed with error: {}", res.message()));
 		}
 		else {
 			trace(numbers_json);
