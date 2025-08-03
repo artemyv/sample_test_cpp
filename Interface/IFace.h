@@ -20,12 +20,20 @@ public:
         return QueryInterface(Q::iid, (void**)pp);
     }
 };
-//MIDL_INTERFACE("32bb8320-b41b-11cf-a6bb-0080c7b2d682")
 struct  IX : public IUnknownReplica
 {
 public:
     static constexpr auto iid = *uuids::uuid::from_string("32bb8320-b41b-11cf-a6bb-0080c7b2d682");
     virtual int  Fx( void) noexcept = 0;
+};
+
+//Not implemented in the component, but used in the client
+//to demonstracte the error handling
+struct  IY: public IUnknownReplica
+{
+public:
+    static constexpr auto iid = *uuids::uuid::from_string("32bb8321-b41b-11cf-a6bb-0080c7b2d682");
+    virtual int  Fy(void) noexcept = 0;
 };
     
 struct IX2 : public IX

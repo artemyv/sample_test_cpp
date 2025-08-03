@@ -56,7 +56,7 @@ private:
 			return std::make_error_code(std::errc::invalid_argument);
 		}
 		Interface* raw = nullptr;
-		const std::error_code ec(m_pIUnknown->QueryInterface(&raw), std::system_category());
+		const auto ec =  std::make_error_code(static_cast<std::errc>(m_pIUnknown->QueryInterface(&raw)));
 		if(!ec && raw) {
 			unique_com_ptr<Interface> ptr{raw};
 			return  std::invoke(std::forward<F>(call_method_result), ptr.get());
@@ -69,8 +69,16 @@ public:
 		return CallInterfaceMethod<IX>([](IX* ptr) 
 			{
 				if(ptr) 
-					return std::error_code(ptr->Fx(), std::system_category()); 
+					return std::make_error_code(static_cast<std::errc>(ptr->Fx()));
 				return std::make_error_code(std::errc::not_supported);
+			});
+	}
+	std::error_code Fy() const noexcept
+	{
+		return CallInterfaceMethod<IY>([](IY* ptr) {
+			if(ptr)
+				return std::make_error_code(static_cast<std::errc>(ptr->Fy()));
+			return std::make_error_code(std::errc::not_supported);
 			});
 	}
 	std::error_code GetVersion(std::string& version) const noexcept
@@ -80,7 +88,7 @@ public:
 			if(!ptr) {
 				return std::make_error_code(std::errc::invalid_argument);
 			}
-			const std::error_code ec(ptr->GetVersion(&result), std::system_category());
+			const auto ec = std::make_error_code(static_cast<std::errc>(ptr->GetVersion(&result)));
 			if(ec) {
 				return ec;
 			}
@@ -99,7 +107,7 @@ public:
 				return std::make_error_code(std::errc::invalid_argument);
 			}
 			const char* result = nullptr;
-			const std::error_code ec(ptr->GenerateRandomNumbers(count, &result), std::system_category());
+			const auto ec = std::make_error_code(static_cast<std::errc>(ptr->GenerateRandomNumbers(count, &result)));
 			if(ec) {
 				return ec;
 			}

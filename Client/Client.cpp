@@ -1,6 +1,6 @@
 ﻿//
 // Client1.cpp
-// Комиляция: cl Client1.cpp Create.cpp GUIDs.cpp UUID.lib
+// Compilation: cl Client1.cpp Create.cpp GUIDs.cpp UUID.lib
 //
 
 #include <format>
@@ -10,56 +10,65 @@
 #include "IOUtils.h"
 
 //
-// Клиент1
+// Client1
 //
 int main()
 {
-	// Считать имя компонента
+    // Read component name
+    std::string name = readName();
+    trace("get IUnknown");
+    ComponentWrapper wrapper(name.c_str());
 
-	std::string name = readName();
-	trace("get IUnknown");
-	ComponentWrapper wrapper(name.c_str());
+    if(!wrapper) {
+        std::string error;
+        [[maybe_unused]]const auto err = wrapper.error_code(error);
+        trace(std::format("CallCreateInstance failed: {}", error));
+        return 1;
+    }
+    trace("get IX");
+    {
+        std::string version{"Unknown"};
+        const auto res = wrapper.GetVersion(version);
+        if(res) {
+            trace(std::format("GetVersion failed with error: {}", res.message()));
+        }
+        else {
+            trace(std::format("GetVersion succeeded : {}", version));
+        }
+    }
 
-	if(!wrapper) {
-		std::string error;
-		[[maybe_unused]]const auto err = wrapper.error_code(error);
-		trace(std::format("CallCreateInstance failed: {}", error));
-		return 1;
-	}
-	trace("get IX");
-	{
-		std::string version{"Unknown"};
-		const auto res = wrapper.GetVersion(version);
-		if(res) {
-			trace(std::format("GetVersion failed with error: {}", res.message()));
-		}
-		else {
-			trace(std::format("GetVersion succeeded : {}", version));
-		}
-	}
+    trace("get IX");
+    {
+        const auto res = wrapper.Fx();
+        if(res) {
+            trace(std::format("Fx failed with error: {}", res.message()));
+        }
+        else {
+            trace("Fx succeeded");
+        }
+    }
+    trace("get IY");
+    {
+        const auto res = wrapper.Fy();
+        if(res) {
+            trace(std::format("Fy failed with error: {}", res.message()));
+        }
+        else {
+            trace("Fy succeeded");
+        }
+    }
 
-	trace("get IX");
-	{
-		const auto res = wrapper.Fx();
-		if(res) {
-			trace(std::format("Fx failed with error: {}", res.message()));
-		}
-		else {
-			trace("Fx succeeded");
-		}
-	}
-	trace("get random numbers");
-	{
-		std::string numbers_json;
-		const auto res = wrapper.GenerateRandomNumbers(25, numbers_json);
-		if(res) {
-			trace(std::format("GenerateRandomNumbers failed with error: {}", res.message()));
-		}
-		else {
-			trace(numbers_json);
-		}
-	}
+    trace("get random numbers");
+    {
+        std::string numbers_json;
+        const auto res = wrapper.GenerateRandomNumbers(25, numbers_json);
+        if(res) {
+            trace(std::format("GenerateRandomNumbers failed with error: {}", res.message()));
+        }
+        else {
+            trace(numbers_json);
+        }
+    }
 
-
-	return 0;
+    return 0;
 }

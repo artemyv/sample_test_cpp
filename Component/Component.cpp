@@ -1,7 +1,3 @@
-//
-// Cmpnt1.cpp
-// Компиляция: cl /LD Cmpnt1.cpp GUIDs.cpp UUID.lib Cmpnt1.def
-//
 #include <cstdio>
 #include <IFace.h>
 #include <format>
@@ -18,20 +14,21 @@ namespace
 			std::puts(std::format("Component 1:\t{:40} [{}:{}]", msg, loc.function_name(), loc.line()).c_str());
 		}
 		catch(std::exception&) {
-			//swallow exceptions from std::format
+			// swallow exceptions from std::format
 		}
 	}
 	//
-	// Компонент
+	// Component
 	//
 	class CA: public IX2, public IRandom
 	{
-		// Реализация IUnknown
+		// IUnknown implementation
 		int  QueryInterface(const uuids::uuid& iid, void** ppv) noexcept override;
 		unsigned long  AddRef() noexcept override;
 		unsigned long  Release() noexcept override;
-		// Реализация интерфейса IX
+		// IX
 		int  Fx(void) noexcept override { trace("Fx"); return std::error_code{}.value(); }
+		// IX2
 		int  GetVersion(const char** version) noexcept override
 		{
 			if(version == nullptr) {
@@ -43,7 +40,7 @@ namespace
 
 				auto version_ptr = std::make_unique<char[]>(sversion.size() + 1);
 				std::memcpy(version_ptr.get(), sversion.c_str(), sversion.size()); // include null terminator
-				*version = version_ptr.release(); // Передаем владение указателем вызывающему коду
+				*version = version_ptr.release(); // Transfer ownership of the pointer to the caller
 
 				return 0;
 			}
@@ -53,8 +50,8 @@ namespace
 			}
 		}
 
-		// Реализация интерфейса IY
-		int  GenerateRandomNumbers( int count, const char** numbers_json)  noexcept override
+		// IRandom
+		int  GenerateRandomNumbers(int count, const char** numbers_json)  noexcept override
 		{
 			if(numbers_json == nullptr) {
 				trace("numbers_json is null");
@@ -65,21 +62,20 @@ namespace
 			std::mt19937 gen(rd()); // mersenne_twister_engine seeded with rd()
 			std::uniform_int_distribution<> distrib(1, 6);
 
-			// Генерация случайных чисел
+			// Generate random numbers
 			std::string numbers = R"({"numbers": [)";
 			for(int i = 0; i < count; ++i) {
-				numbers += std::format("{},",distrib(gen)); // Генерируем случайное число от 1 до 6
+				numbers += std::format("{},", distrib(gen)); // Generate a random number from 1 to 6
 			}
 			if(!numbers.empty() && numbers.back() == ',') {
-				numbers.pop_back(); // Удаляем последнюю запятую
+				numbers.pop_back(); // Remove the last comma
 			}
-			numbers += "]}"; // Закрываем JSON-объект
-			try 
-			{
+			numbers += "]}"; // Close the JSON object
+			try {
 				auto numbers_json_ptr = std::make_unique<char[]>(numbers.size() + 1);
 				std::memcpy(numbers_json_ptr.get(), numbers.c_str(), numbers.size() + 1); // include null terminator
-				*numbers_json = numbers_json_ptr.release(); // Передаем владение указателем вызывающему коду
-				return 0; 
+				*numbers_json = numbers_json_ptr.release(); // Transfer ownership of the pointer to the caller
+				return 0;
 			}
 			catch(const std::bad_alloc& e) {
 				trace(std::format("Exception: {}", e.what()).c_str());
@@ -87,7 +83,7 @@ namespace
 			}
 			catch(...) {
 				trace("Unknown exception occurred");
-				return std::make_error_code(std::errc::interrupted).value(); 
+				return std::make_error_code(std::errc::interrupted).value();
 			}
 		}
 
@@ -97,13 +93,13 @@ namespace
 			return 0;
 		}
 	public:
-		// Деструктор
+		// Destructor
 		virtual ~CA() { trace("Destructing"); }
 		CA() = default;
-		CA(const CA&) = delete; // Запрет копирования
-		CA& operator=(const CA&) = delete; // Запрет присваивания
-		CA(CA&&) = delete; // Запрет перемещения
-		CA& operator=(CA&&) = delete; // Запрет перемещения
+		CA(const CA&) = delete; // Disable copy
+		CA& operator=(const CA&) = delete; // Disable assignment
+		CA(CA&&) = delete; // Disable move
+		CA& operator=(CA&&) = delete; // Disable move assignment
 
 	private:
 		std::atomic<unsigned long> m_cRef{0U};
@@ -156,7 +152,7 @@ namespace
 	}
 }
 //
-// Функция создания
+// Creation function
 //
 extern "C" IUnknownReplica* CreateInstance()
 {
