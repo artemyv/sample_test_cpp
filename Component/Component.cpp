@@ -1,5 +1,5 @@
 #include <cstdio>
-#include <IFace.h>
+#include <details/IFace.h>
 #include <format>
 #include <source_location>
 #include <random>
@@ -23,13 +23,13 @@ namespace
 	class CA: public IX2, public IRandom
 	{
 		// IUnknown implementation
-		int  QueryInterface(const uuids::uuid& iid, void** ppv) noexcept override;
+		int32_t  QueryInterface(const uuids::uuid& iid, void** ppv) noexcept override;
 		unsigned long  AddRef() noexcept override;
 		unsigned long  Release() noexcept override;
 		// IX
-		int  Fx(void) noexcept override { trace("Fx"); return std::error_code{}.value(); }
+		int32_t  Fx(void) noexcept override { trace("Fx"); return std::error_code{}.value(); }
 		// IX2
-		int  GetVersion(const char** version) noexcept override
+		int32_t  GetVersion(const char** version) noexcept override
 		{
 			if(version == nullptr) {
 				trace("version is null");
@@ -51,7 +51,7 @@ namespace
 		}
 
 		// IRandom
-		int  GenerateRandomNumbers(int count, const char** numbers_json)  noexcept override
+		int32_t  GenerateRandomNumbers(size_t count, const char** numbers_json)  noexcept override
 		{
 			if(numbers_json == nullptr) {
 				trace("numbers_json is null");
@@ -64,7 +64,7 @@ namespace
 
 			// Generate random numbers
 			std::string numbers = R"({"numbers": [)";
-			for(int i = 0; i < count; ++i) {
+			for(size_t i = 0; i < count; ++i) {
 				numbers += std::format("{},", distrib(gen)); // Generate a random number from 1 to 6
 			}
 			if(!numbers.empty() && numbers.back() == ',') {
@@ -87,7 +87,7 @@ namespace
 			}
 		}
 
-		int  FreeResult(const char* result)  noexcept override
+		int32_t  FreeResult(const char* result)  noexcept override
 		{
 			delete[] result;
 			return 0;
@@ -104,7 +104,7 @@ namespace
 	private:
 		std::atomic<unsigned long> m_cRef{0U};
 	};
-	int  CA::QueryInterface(const uuids::uuid& iid, void** ppv) noexcept
+	int32_t  CA::QueryInterface(const uuids::uuid& iid, void** ppv) noexcept
 	{
 		if(ppv == nullptr) {
 			trace("ppv is null");

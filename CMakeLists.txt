@@ -11,7 +11,7 @@ include(FetchContent)
 FetchContent_Declare(
     dllhelper
     GIT_REPOSITORY https://github.com/artemyv/dllhelper.git
-    GIT_TAG        master # or a commit hash or branch
+    GIT_TAG        hardening # or a commit hash or branch
 )
 FetchContent_MakeAvailable(dllhelper)
 
@@ -27,6 +27,9 @@ FetchContent_Declare(
     GIT_REPOSITORY https://github.com/mariusbancila/stduuid.git
     GIT_TAG        v1.2.3 # or a commit hash or branch
 )
+# Enable std::span instead of gsl::span in stduuid
+set(UUID_USING_CXX20_SPAN ON CACHE BOOL "Using span from std instead of gsl")
+
 FetchContent_MakeAvailable(stduuid)
 
 
