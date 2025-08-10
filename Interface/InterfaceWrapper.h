@@ -22,26 +22,26 @@ struct ComReleaser
 
 template<typename Interface>
 requires (std::derived_from<Interface, IUnknownReplica>)
-class InterfaceWrapperBase
+class InterfaceWrapper
 {
 public:
 	template<refCounting T>
 	using unique_com_ptr = std::unique_ptr<T, ComReleaser<T>>;
 
-	explicit InterfaceWrapperBase(Interface* pI):m_pI(pI)
+	explicit InterfaceWrapper(Interface* pI):m_pI(pI)
 	{
 		if(!pI) 
 			throw std::runtime_error("Interface is not supported");
 	}
-	explicit InterfaceWrapperBase(auto p) = delete; // Prevent implicit conversion from other types
+	explicit InterfaceWrapper(auto p) = delete; // Prevent implicit conversion from other types
 
 	template<typename OtherInterface>
-	InterfaceWrapperBase<OtherInterface> QueryInterface() const
+	InterfaceWrapper<OtherInterface> QueryInterface() const
 	{
 		OtherInterface* raw = nullptr;
 		const auto ec =  std::make_error_code(static_cast<std::errc>(m_pI->QueryInterface(&raw)));
 		if(!ec) {
-			return InterfaceWrapperBase<OtherInterface>(raw);
+			return InterfaceWrapper<OtherInterface>(raw);
 		}
 		throw std::system_error(ec,"Interface is not supported");
 	}
