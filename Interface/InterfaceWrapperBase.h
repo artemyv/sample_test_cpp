@@ -46,11 +46,8 @@ public:
 		throw std::system_error(ec,"Interface is not supported");
 	}
 
-	template<typename F >
-	std::error_code CallInterfaceMethod(F&& call_method_result) const noexcept
-	{
-		return  std::invoke(std::forward<F>(call_method_result), m_pI.get());
-	}
+	Interface* operator->() { return m_pI.get(); }
+	const Interface* operator->() const { return m_pI.get(); }
 
 private:
 	unique_com_ptr<Interface> m_pI{};
