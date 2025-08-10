@@ -28,13 +28,11 @@ namespace ComponentWrapper
 		explicit ComponentWrapper(auto p) = delete; // Prevent implicit conversion from other types
 	private:
 	public:
-		std::error_code Fx() const noexcept
+		template <typename F>
+		std::error_code expect(F&& f) const noexcept
 		{
 			try {
-				auto i = m_pIUnknown.QueryInterface<IX>();
-				return i.CallInterfaceMethod([](IX* ptr) {
-					return result_of(ptr->Fx());
-					});
+				return f();
 			}
 			catch(const std::system_error& e) {
 				return e.code();
@@ -42,26 +40,30 @@ namespace ComponentWrapper
 			catch(...) {
 				return std::make_error_code(std::errc::not_supported);
 			}
+		}
+
+		std::error_code Fx() const noexcept
+		{
+			return expect([&pI = m_pIUnknown]() {
+				auto i = pI.QueryInterface<IX>();
+				return i.CallInterfaceMethod([](IX* ptr) {
+					return result_of(ptr->Fx());
+				});
+			});
 		}
 		std::error_code Fy() const noexcept
 		{
-			try {
-				auto i = m_pIUnknown.QueryInterface<IY>();
+			return expect([&pI = m_pIUnknown]() {
+				auto i = pI.QueryInterface<IY>();
 				return i.CallInterfaceMethod([](IY* ptr) {
 					return result_of(ptr->Fy());
-					});
-			}
-			catch(const std::system_error& e) {
-				return e.code();
-			}
-			catch(...) {
-				return std::make_error_code(std::errc::not_supported);
-			}
+				});
+			});
 		}
 		std::error_code GetVersion(std::string& version) const noexcept
 		{
-			try {
-				auto i = m_pIUnknown.QueryInterface<IX2>();
+			return expect([&pI = m_pIUnknown, &version]() {
+				auto i = pI.QueryInterface<IX2>();
 				return i.CallInterfaceMethod([&version](IX2* ptr) {
 					const char* result = nullptr;
 					const auto ec = result_of(ptr->GetVersion(&result));
@@ -73,19 +75,13 @@ namespace ComponentWrapper
 						ptr->FreeResult(result);
 					}
 					return std::error_code{};
-					});
-			}
-			catch(const std::system_error& e) {
-				return e.code();
-			}
-			catch(...) {
-				return std::make_error_code(std::errc::not_supported);
-			}
+				});
+			});
 		}
 		std::error_code  GenerateRandomNumbers(size_t count, std::string& numbers_json) const noexcept
 		{
-			try {
-				auto i = m_pIUnknown.QueryInterface<IRandom>();
+			return expect([&pI = m_pIUnknown, count, &numbers_json]() {
+				auto i = pI.QueryInterface<IRandom>();
 				return i.CallInterfaceMethod([&numbers_json, count](IRandom* ptr) {
 					const char* result = nullptr;
 					const auto ec = result_of(ptr->GenerateRandomNumbers(count, &result));
@@ -97,14 +93,8 @@ namespace ComponentWrapper
 						ptr->FreeResult(result);
 					}
 					return std::error_code{};
-					});
-			}
-			catch(const std::system_error& e) {
-				return e.code();
-			}
-			catch(...) {
-				return std::make_error_code(std::errc::not_supported);
-			}
+				});
+			});
 		}
 
 	private:
