@@ -11,7 +11,7 @@ include(FetchContent)
 FetchContent_Declare(
     dllhelper
     GIT_REPOSITORY https://github.com/artemyv/dllhelper.git
-    GIT_TAG        hardening # or a commit hash or branch
+    GIT_TAG        v2.0 # or a commit hash or branch
 )
 FetchContent_MakeAvailable(dllhelper)
 
