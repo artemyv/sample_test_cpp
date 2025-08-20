@@ -20,6 +20,9 @@ std::filesystem::path readDllPath()
 		trace("Path cannot be empty");
 		throw std::runtime_error("Missing path");
 	}
+	if(name.length() > 2 && name.front() == L'"' && name.back() == L'"') {
+		name = name.substr(1, name.length() - 2);
+    }
 	std::filesystem::path path{name};
 	if(!std::filesystem::exists(path)) {
 		trace("File does not exist");
