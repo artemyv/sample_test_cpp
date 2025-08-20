@@ -5,13 +5,14 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-add_subdirectory(Interface)
+# Ensure compile_commands.json is generated
+set(CMAKE_EXPORT_COMPILE_COMMANDS  ${DLLHELPER_MAIN_PROJECT})
 
 include(FetchContent)
 FetchContent_Declare(
     dllhelper
     GIT_REPOSITORY https://github.com/artemyv/dllhelper.git
-    GIT_TAG        v2.0 # or a commit hash or branch
+    GIT_TAG        v2.1.1 # or a commit hash or branch
 )
 FetchContent_MakeAvailable(dllhelper)
 
@@ -32,6 +33,6 @@ set(UUID_USING_CXX20_SPAN ON CACHE BOOL "Using span from std instead of gsl")
 
 FetchContent_MakeAvailable(stduuid)
 
-
+add_subdirectory(Interface)
 add_subdirectory(Component)
 add_subdirectory(Client)

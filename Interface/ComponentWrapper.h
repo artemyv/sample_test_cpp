@@ -85,7 +85,7 @@ namespace ComponentWrapper
 		}
 		static IUnknownReplica* CreateInstanceofUnknown(const dll::Helper& helper)
 		{
-			dll::Fp<decltype(::CreateInstance)> create = helper[gsl::not_null<gsl::czstring>("CreateInstance")];
+			dll::Fp<decltype(::CreateInstance)> create{helper[dll::procname_t("CreateInstance")]};
 			return create();
 		}
 
