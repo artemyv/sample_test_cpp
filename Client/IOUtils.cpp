@@ -18,7 +18,7 @@ std::filesystem::path readDllPath()
 	}
 	if(name.empty()) {
 		trace("Path cannot be empty");
-		throw std::runtime_error("Missing path");
+		throw std::invalid_argument("Path cannot be empty");
 	}
 	if(name.length() > 2 && name.front() == L'"' && name.back() == L'"') {
 		name = name.substr(1, name.length() - 2);
@@ -26,11 +26,11 @@ std::filesystem::path readDllPath()
 	std::filesystem::path path{name};
 	if(!std::filesystem::exists(path)) {
 		trace("File does not exist");
-		throw std::runtime_error("Invalid path");
+		throw std::invalid_argument("File does not exist");
 	}
 	if(!std::filesystem::is_regular_file(path)) {
 		trace("Path is not a regular file");
-		throw std::runtime_error("Invalid file type");
+		throw std::invalid_argument("Path is not a regular file");
 	}
 	return path;
 }

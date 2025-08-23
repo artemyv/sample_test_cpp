@@ -10,7 +10,7 @@ using namespace ComponentAPI;
 
 namespace
 {
-	static void trace(const char* msg, std::source_location loc = std::source_location::current()) noexcept
+	void trace(const char* msg, std::source_location loc = std::source_location::current()) noexcept
 	{
 		try {
 			std::puts(std::format("Component 1:\t{:40} [{}:{}]", msg, loc.function_name(), loc.line()).c_str());
