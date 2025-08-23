@@ -23,7 +23,7 @@ namespace
 	class CA: public IX2, public IRandom
 	{
 		// IUnknown implementation
-		int32_t  QueryInterface(const uuids::uuid& iid, void** ppv) noexcept override;
+		int32_t  QueryInterface(const uuids::uuid& iid, IUnknownReplica** ppv) noexcept override;
 		unsigned long  AddRef() noexcept override;
 		unsigned long  Release() noexcept override;
 		// IX
@@ -104,7 +104,7 @@ namespace
 	private:
 		std::atomic<unsigned long> m_cRef{0U};
 	};
-	int32_t  CA::QueryInterface(const uuids::uuid& iid, void** ppv) noexcept
+	int32_t  CA::QueryInterface(const uuids::uuid& iid, IUnknownReplica** ppv) noexcept
 	{
 		if(ppv == nullptr) {
 			trace("ppv is null");
@@ -131,7 +131,7 @@ namespace
 			*ppv = nullptr;
 			return std::make_error_code(std::errc::operation_not_supported).value();
 		}
-		static_cast<IUnknownReplica*>(*ppv)->AddRef();
+		(*ppv)->AddRef();
 		return 0;
 	}
 	unsigned long  CA::AddRef() noexcept
