@@ -3,18 +3,16 @@
 #include <Windows.h>
 
 BOOL APIENTRY DllMain( HMODULE /*hModule*/,
-                       DWORD  ul_reason_for_call,
+                       DWORD  /*ul_reason_for_call*/,
                        LPVOID /*lpReserved*/
                      ) noexcept
 {
-    switch (ul_reason_for_call)
-    {
-    case DLL_PROCESS_ATTACH:
-    case DLL_THREAD_ATTACH:
-    case DLL_THREAD_DETACH:
-    case DLL_PROCESS_DETACH:
-    default:
-        break;
-    }
+    /* ul_reason_for_call could be one of the following:
+        - DLL_PROCESS_ATTACH:
+        - DLL_THREAD_ATTACH:
+        - DLL_THREAD_DETACH:
+        - DLL_PROCESS_DETACH:
+        for now we do not need to handle any of these cases
+    */
     return TRUE;
 }

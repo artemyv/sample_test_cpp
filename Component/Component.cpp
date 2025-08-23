@@ -15,8 +15,8 @@ namespace
 		try {
 			std::puts(std::format("Component 1:\t{:40} [{}:{}]", msg, loc.function_name(), loc.line()).c_str());
 		}
-		catch(std::exception&) {
-			// swallow exceptions from std::format
+		catch(const std::format_error& ex) {
+			std::puts(ex.what());
 		}
 	}
 	//
@@ -62,7 +62,7 @@ namespace
 
 			std::random_device rd;  // a seed source for the random number engine
 			std::mt19937 gen(rd()); // mersenne_twister_engine seeded with rd()
-			std::uniform_int_distribution<> distrib(1, 6);
+			std::uniform_int_distribution distrib(1, 6);
 
 			// Generate random numbers
 			std::string numbers = R"({"numbers": [)";
