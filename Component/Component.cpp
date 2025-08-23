@@ -91,7 +91,7 @@ namespace
 
 		int32_t  FreeResult(const char* result)  noexcept override
 		{
-			delete[] result;
+            std::unique_ptr<const char[]> ptr(result);
 			return 0;
 		}
 	public:
@@ -102,7 +102,13 @@ namespace
 		CA& operator=(const CA&) = delete; // Disable assignment
 		CA(CA&&) = delete; // Disable move
 		CA& operator=(CA&&) = delete; // Disable move assignment
-
+		static  ComponentAPI::IUnknownReplica*  create()
+		{
+			auto pA = std::make_unique<CA>();
+			pA->AddRef();
+            ComponentAPI::IX* px = pA.release();
+			return px;
+		}
 	private:
 		std::atomic<unsigned long> m_cRef{0U};
 	};
@@ -147,7 +153,7 @@ namespace
 		const auto res = m_cRef.fetch_sub(1, std::memory_order_acq_rel) - 1;
 		trace(std::format("Release: {}", res).c_str());
 		if(res == 0) {
-			delete this;
+            std::unique_ptr<CA> pA(this); // ensure deletion
 			return 0;
 		}
 		return res;
@@ -158,7 +164,5 @@ namespace
 //
 extern "C" ComponentAPI::IUnknownReplica* CreateInstance()
 {
-	IUnknownReplica* pI = static_cast<IX*>(new CA);
-	pI->AddRef();
-	return pI;
+    return CA::create();
 }
