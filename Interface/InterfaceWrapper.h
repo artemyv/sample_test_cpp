@@ -30,7 +30,7 @@ public:
 	explicit InterfaceWrapper(Interface* pI):m_pI(pI)
 	{
 		if(!pI) 
-			throw std::runtime_error("Interface is not supported");
+			throw std::invalid_argument("Interface is not supported");
 	}
 	explicit InterfaceWrapper(auto p) = delete; // Prevent implicit conversion from other types
 
