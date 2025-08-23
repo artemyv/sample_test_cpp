@@ -8,7 +8,7 @@
 #include <system_error>
 #include <filesystem>
 
-extern "C" IUnknownReplica* CreateInstance();
+extern "C" ComponentAPI::IUnknownReplica* CreateInstance();
 
 namespace ComponentWrapper
 {
@@ -23,21 +23,21 @@ namespace ComponentWrapper
 		std::error_code Fx() const noexcept
 		{
 			return safecall([&pI = m_pIUnknown]() {
-				auto i = pI.QueryInterface<IX>();
+				auto i = pI.QueryInterface<ComponentAPI::IX>();
 				return i->Fx();
 			});
 		}
 		std::error_code Fy() const noexcept
 		{
 			return safecall([&pI = m_pIUnknown]() {
-				auto i = pI.QueryInterface<IY>();
+				auto i = pI.QueryInterface<ComponentAPI::IY>();
 				return i->Fy();
 			});
 		}
 		std::error_code GetVersion(std::string& version) const noexcept
 		{
 			return safecall([&pI = m_pIUnknown, &version]() {
-				auto i = pI.QueryInterface<IX2>();
+				auto i = pI.QueryInterface<ComponentAPI::IX2>();
 				const char* result = nullptr;
 				const auto ec = i->GetVersion(&result);
 				if(ec != 0) {
@@ -53,7 +53,7 @@ namespace ComponentWrapper
 		std::error_code  GenerateRandomNumbers(size_t count, std::string& numbers_json) const noexcept
 		{
 			return safecall([&pI = m_pIUnknown, count, &numbers_json]() {
-			auto i = pI.QueryInterface<IRandom>();
+			auto i = pI.QueryInterface<ComponentAPI::IRandom>();
 				const char* result = nullptr;
 				const auto ec = i->GenerateRandomNumbers(count, &result);
 				if(ec != 0) {
@@ -83,7 +83,7 @@ namespace ComponentWrapper
 		{
 			return std::make_error_code(static_cast<std::errc>(ret));
 		}
-		static IUnknownReplica* CreateInstanceofUnknown(const dll::Helper& helper)
+		static ComponentAPI::IUnknownReplica* CreateInstanceofUnknown(const dll::Helper& helper)
 		{
 			dll::Fp<decltype(::CreateInstance)> create{helper[dll::procname_t("CreateInstance")]};
 			return create();
@@ -92,6 +92,6 @@ namespace ComponentWrapper
 
 	private:
 		dll::Helper m_dll; //we do not use this member after initalizing m_pIUnknown, but it will keep the DLL loaded
-		InterfaceWrapper<IUnknownReplica> m_pIUnknown;
+		InterfaceWrapper<ComponentAPI::IUnknownReplica> m_pIUnknown;
 	};
 }

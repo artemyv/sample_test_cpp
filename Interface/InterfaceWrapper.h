@@ -20,8 +20,7 @@ struct ComReleaser
 	}
 };
 
-template<typename Interface>
-requires (std::derived_from<Interface, IUnknownReplica>)
+template<ComponentAPI::IInterface Interface>
 class InterfaceWrapper
 {
 public:
