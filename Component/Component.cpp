@@ -6,6 +6,8 @@
 #include <string_view>
 #include <atomic>
 #include <system_error>
+using namespace ComponentAPI;
+
 namespace
 {
 	static void trace(const char* msg, std::source_location loc = std::source_location::current()) noexcept
@@ -154,7 +156,7 @@ namespace
 //
 // Creation function
 //
-extern "C" IUnknownReplica* CreateInstance()
+extern "C" ComponentAPI::IUnknownReplica* CreateInstance()
 {
 	IUnknownReplica* pI = static_cast<IX*>(new CA);
 	pI->AddRef();
