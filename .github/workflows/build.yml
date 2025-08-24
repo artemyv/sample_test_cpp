@@ -34,6 +34,7 @@ jobs:
         run: |
           cd build
           ctest --output-on-failure
+          cd ..
       - name: Collect coverage into one XML report
         run: |
           gcovr --sonarqube > coverage.xml

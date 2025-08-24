@@ -4,9 +4,12 @@
 #include <filesystem>
 
 class ComponentWrapperTest : public ::testing::Test {
-protected:
     std::filesystem::path dllPath;
 
+protected:
+    const std::filesystem::path& GetDllPath() const {
+        return dllPath;
+    }
     void SetUp() override {
         // Set the path to your built Component.dll here
         dllPath = std::filesystem::absolute(COMPONENT_TARGET_NAME);
@@ -14,13 +17,13 @@ protected:
 };
 
 TEST_F(ComponentWrapperTest, FxReturnsNoError) {
-    ComponentWrapper::ComponentWrapper wrapper(dllPath);
+    ComponentWrapper::ComponentWrapper wrapper(GetDllPath());
     auto ec = wrapper.Fx();
     EXPECT_TRUE(!ec);
 }
 
 TEST_F(ComponentWrapperTest, GetVersionReturnsVersionString) {
-    ComponentWrapper::ComponentWrapper wrapper(dllPath);
+    ComponentWrapper::ComponentWrapper wrapper(GetDllPath());
     std::string version;
     auto ec = wrapper.GetVersion(version);
     EXPECT_TRUE(!ec);
@@ -28,7 +31,7 @@ TEST_F(ComponentWrapperTest, GetVersionReturnsVersionString) {
 }
 
 TEST_F(ComponentWrapperTest, GenerateRandomNumbersReturnsJson) {
-    ComponentWrapper::ComponentWrapper wrapper(dllPath);
+    ComponentWrapper::ComponentWrapper wrapper(GetDllPath());
     std::string numbers_json;
     auto ec = wrapper.GenerateRandomNumbers(5, numbers_json);
     EXPECT_TRUE(!ec);
@@ -36,7 +39,7 @@ TEST_F(ComponentWrapperTest, GenerateRandomNumbersReturnsJson) {
 }
 
 TEST_F(ComponentWrapperTest, FyReturnsError) {
-    ComponentWrapper::ComponentWrapper wrapper(dllPath);
+    ComponentWrapper::ComponentWrapper wrapper(GetDllPath());
     auto ec = wrapper.Fy();
     auto expected = std::make_error_code(std::errc::operation_not_supported);
     EXPECT_EQ(ec, expected);
