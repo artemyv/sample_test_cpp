@@ -39,8 +39,8 @@ namespace ComponentWrapper
 			return safecall([&pI = m_pIUnknown, &version]() {
 				auto i = pI.QueryInterface<ComponentAPI::IX2>();
 				const char* result = nullptr;
-				const auto ec = i->GetVersion(&result);
-				if(ec != 0) {
+				
+				if(const auto ec = i->GetVersion(&result); ec != 0) {
 					return ec;
 				}
 				if(result) {
@@ -55,8 +55,8 @@ namespace ComponentWrapper
 			return safecall([&pI = m_pIUnknown, count, &numbers_json]() {
 			auto i = pI.QueryInterface<ComponentAPI::IRandom>();
 				const char* result = nullptr;
-				const auto ec = i->GenerateRandomNumbers(count, &result);
-				if(ec != 0) {
+				
+				if(const auto ec = i->GenerateRandomNumbers(count, &result); ec != 0) {
 					return ec;
 				}
 				if(result) {
