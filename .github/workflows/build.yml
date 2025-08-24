@@ -38,6 +38,7 @@ jobs:
       - name: Collect coverage into one XML report
         run: |
           gcovr --sonarqube > coverage.xml
+          gcovr --sonarqube --exclude '.*_deps/*' > coverage.xml
       - name: SonarQube Scan
         uses: SonarSource/sonarqube-scan-action@v4
         env:
