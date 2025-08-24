@@ -33,7 +33,13 @@ add_custom_command(TARGET ComponentWrapperTests POST_BUILD
 target_compile_definitions(ComponentWrapperTests
     PRIVATE
         COMPONENT_TARGET_NAME="$<TARGET_FILE_NAME:Component>"
+        $<$<CXX_COMPILER_ID:MSVC>:WIN32_LEAN_AND_MEAN NOMINMAX>
 )
+
+target_compile_options(ComponentWrapperTests PRIVATE
+     $<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-Wall -Wextra -Wpedantic -Werror>
+     $<$<CXX_COMPILER_ID:MSVC>:/W4 /WX>
+    )
 
 add_test(NAME ComponentWrapperTests COMMAND ComponentWrapperTests)
 
