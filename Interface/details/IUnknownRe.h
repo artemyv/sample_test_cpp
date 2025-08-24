@@ -31,5 +31,7 @@ namespace ComponentAPI
         {
             return QueryInterface(Q::iid, (IUnknownReplica**)pp);
         }
+    protected:
+        ~IUnknownReplica() = default;
     };
 }
