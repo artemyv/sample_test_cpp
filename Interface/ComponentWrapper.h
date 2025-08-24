@@ -39,8 +39,8 @@ namespace ComponentWrapper
 			return safecall([&pI = m_pIUnknown, &version]() {
 				auto i = pI.QueryInterface<ComponentAPI::IX2>();
 				const char* result = nullptr;
-				const auto ec = i->GetVersion(&result);
-				if(ec != 0) {
+				
+				if(const auto ec = i->GetVersion(&result); ec != 0) {
 					return ec;
 				}
 				if(result) {
@@ -55,8 +55,8 @@ namespace ComponentWrapper
 			return safecall([&pI = m_pIUnknown, count, &numbers_json]() {
 			auto i = pI.QueryInterface<ComponentAPI::IRandom>();
 				const char* result = nullptr;
-				const auto ec = i->GenerateRandomNumbers(count, &result);
-				if(ec != 0) {
+				
+				if(const auto ec = i->GenerateRandomNumbers(count, &result); ec != 0) {
 					return ec;
 				}
 				if(result) {
@@ -67,7 +67,7 @@ namespace ComponentWrapper
 			});
 		}	private:
 		template <typename F>
-		static std::error_code safecall(F&& f) noexcept
+		static std::error_code safecall(F&& f)
 		{
 			try {
 				return result_of(f());
@@ -75,8 +75,8 @@ namespace ComponentWrapper
 			catch(const std::system_error& e) {
 				return e.code();
 			}
-			catch(...) {
-				return std::make_error_code(std::errc::not_supported);
+			catch(const std::bad_alloc&) {
+				return std::make_error_code(std::errc::not_enough_memory);
 			}
 		}
 		inline static auto result_of(int32_t ret)
