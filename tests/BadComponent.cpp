@@ -1,9 +1,5 @@
 #include <cstdio>
 #include <details/IFace.h>
-#include <format>
-#include <source_location>
-#include <random>
-#include <string_view>
 #include <atomic>
 #include <system_error>
 using namespace ComponentAPI;
@@ -17,7 +13,7 @@ namespace
 	//
 	// Component
 	//
-	class CA: public IX2, public IRandom, public IY
+	class CABad: public IX2, public IRandom, public IY
 	{
 		// IUnknown implementation
 		int32_t  QueryInterface(const uuids::uuid& iid, IUnknownReplica** ppv) noexcept override;
@@ -54,15 +50,15 @@ namespace
 		}
 	public:
 		// Destructor
-		virtual ~CA() = default;
-		CA() = default;
-		CA(const CA&) = delete; // Disable copy
-		CA& operator=(const CA&) = delete; // Disable assignment
-		CA(CA&&) = delete; // Disable move
-		CA& operator=(CA&&) = delete; // Disable move assignment
+		virtual ~CABad() = default;
+		CABad() = default;
+		CABad(const CABad&) = delete; // Disable copy
+		CABad& operator=(const CABad&) = delete; // Disable assignment
+		CABad(CABad&&) = delete; // Disable move
+		CABad& operator=(CABad&&) = delete; // Disable move assignment
 		static  ComponentAPI::IUnknownReplica*  create()
 		{
-			auto pA = std::make_unique<CA>();
+			auto pA = std::make_unique<CABad>();
 			pA->AddRef();
             ComponentAPI::IX* px = pA.release();
 			return px;
@@ -70,7 +66,7 @@ namespace
 	private:
 		std::atomic<unsigned long> m_cRef{0U};
 	};
-	int32_t  CA::QueryInterface(const uuids::uuid& iid, IUnknownReplica** ppv) noexcept
+	int32_t  CABad::QueryInterface(const uuids::uuid& iid, IUnknownReplica** ppv) noexcept
 	{
 		if(ppv == nullptr) {
 			return std::make_error_code(std::errc::invalid_argument).value();
@@ -97,16 +93,16 @@ namespace
 		(*ppv)->AddRef();
 		return 0;
 	}
-	unsigned long  CA::AddRef() noexcept
+	unsigned long  CABad::AddRef() noexcept
 	{
 		const auto res = m_cRef.fetch_add(1, std::memory_order_relaxed) + 1;
 		return res;
 	}
-	unsigned long  CA::Release() noexcept
+	unsigned long  CABad::Release() noexcept
 	{
 		const auto res = m_cRef.fetch_sub(1, std::memory_order_acq_rel) - 1;
 		if(res == 0) {
-            std::unique_ptr<CA> pA(this); // ensure deletion
+            std::unique_ptr<CABad> pA(this); // ensure deletion
 			return 0;
 		}
 		return res;
@@ -117,5 +113,5 @@ namespace
 //
 extern "C" ComponentAPI::IUnknownReplica* CreateInstance()
 {
-    return CA::create();
+    return CABad::create();
 }
