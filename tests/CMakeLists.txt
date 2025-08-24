@@ -5,6 +5,10 @@ if(WIN32)
         ../Component/Component.def
         ../Component/dllmain.cpp
     )
+else()
+    set(LINUX_TEST_SOURCES 
+        ClientExeTest.cpp
+    )
 endif()
 add_library(BadComponent SHARED
     BadComponent.cpp
@@ -26,6 +30,7 @@ target_compile_options(BadComponent PRIVATE
 
 set(TEST_SOURCES
     ComponentWrapperTests.cpp
+    ${LINUX_TEST_SOURCES}
 )
 
 add_executable(ComponentWrapperTests ${TEST_SOURCES})
@@ -46,25 +51,13 @@ target_include_directories(ComponentWrapperTests
         ${CMAKE_SOURCE_DIR}/Interface
         ${CMAKE_SOURCE_DIR}/Component
 )
-add_dependencies(ComponentWrapperTests Component BadComponent)
-
-add_custom_command(TARGET ComponentWrapperTests POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy_if_different
-        $<TARGET_FILE:Component>
-        $<TARGET_FILE_DIR:ComponentWrapperTests>
-)
-
-add_custom_command(TARGET ComponentWrapperTests POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy_if_different
-        $<TARGET_FILE:BadComponent>
-        $<TARGET_FILE_DIR:ComponentWrapperTests>
-)
-
+add_dependencies(ComponentWrapperTests Component BadComponent Client)
 
 target_compile_definitions(ComponentWrapperTests
     PRIVATE
-        COMPONENT_TARGET_NAME="$<TARGET_FILE_NAME:Component>"
-        BAD_COMPONENT_TARGET_NAME="$<TARGET_FILE_NAME:BadComponent>"
+        COMPONENT_TARGET_NAME="$<TARGET_FILE:Component>"
+        BAD_COMPONENT_TARGET_NAME="$<TARGET_FILE:BadComponent>"
+        CLIENT_TARGET_NAME="$<TARGET_FILE:Client>"
         $<$<CXX_COMPILER_ID:MSVC>:WIN32_LEAN_AND_MEAN NOMINMAX>
 )
 

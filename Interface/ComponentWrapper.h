@@ -65,7 +65,9 @@ namespace ComponentWrapper
 				}
 				return 0;
 			});
-		}	private:
+		}	
+	
+	private:
 		template <typename F>
 		static std::error_code safecall(F&& f)
 		{
