@@ -29,8 +29,6 @@ public:
 
 	explicit InterfaceWrapper(Interface* pI):m_pI(pI)
 	{
-		if(!pI) 
-			throw std::invalid_argument("Interface is not supported");
 	}
 	explicit InterfaceWrapper(auto p) = delete; // Prevent implicit conversion from other types
 
@@ -38,7 +36,7 @@ public:
 	InterfaceWrapper<OtherInterface> QueryInterface() const
 	{
 		OtherInterface* raw = nullptr;
-		const auto ec =  std::make_error_code(static_cast<std::errc>(m_pI->QueryInterface(&raw)));
+		const auto ec =  std::make_error_code( static_cast<std::errc>(m_pI->QueryInterface(&raw)));
 		if(!ec) {
 			return InterfaceWrapper<OtherInterface>(raw);
 		}

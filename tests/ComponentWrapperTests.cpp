@@ -44,3 +44,51 @@ TEST_F(ComponentWrapperTest, FyReturnsError) {
     auto expected = std::make_error_code(std::errc::operation_not_supported);
     EXPECT_EQ(ec, expected);
 }
+
+class BadComponentWrapperTest: public ::testing::Test
+{
+    std::filesystem::path dllPath;
+
+protected:
+    const std::filesystem::path& GetDllPath() const
+    {
+        return dllPath;
+    }
+    void SetUp() override
+    {
+        // Set the path to your built Component.dll here
+        dllPath = std::filesystem::absolute(BAD_COMPONENT_TARGET_NAME);
+    }
+};
+
+TEST_F(BadComponentWrapperTest, FxReturnsNoError)
+{
+    ComponentWrapper::ComponentWrapper wrapper(GetDllPath());
+    auto ec = wrapper.Fx();
+    EXPECT_TRUE(!ec);
+}
+
+TEST_F(BadComponentWrapperTest, GetVersionReturnsVersionString)
+{
+    ComponentWrapper::ComponentWrapper wrapper(GetDllPath());
+    std::string version;
+    auto ec = wrapper.GetVersion(version);
+    auto expected = std::make_error_code(std::errc::not_enough_memory);
+    EXPECT_EQ(ec, expected);
+}
+
+TEST_F(BadComponentWrapperTest, GenerateRandomNumbersReturnsJson)
+{
+    ComponentWrapper::ComponentWrapper wrapper(GetDllPath());
+    std::string numbers_json;
+    auto ec = wrapper.GenerateRandomNumbers(5, numbers_json);
+    auto expected = std::make_error_code(std::errc::not_enough_memory);
+    EXPECT_EQ(ec, expected);
+}
+
+TEST_F(BadComponentWrapperTest, FyIsCalled)
+{
+    ComponentWrapper::ComponentWrapper wrapper(GetDllPath());
+    auto ec = wrapper.Fy();
+    EXPECT_TRUE(!ec);
+}

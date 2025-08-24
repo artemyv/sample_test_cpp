@@ -67,7 +67,7 @@ namespace ComponentWrapper
 			});
 		}	private:
 		template <typename F>
-		static std::error_code safecall(F&& f) noexcept
+		static std::error_code safecall(F&& f)
 		{
 			try {
 				return result_of(f());
@@ -75,8 +75,8 @@ namespace ComponentWrapper
 			catch(const std::system_error& e) {
 				return e.code();
 			}
-			catch(...) {
-				return std::make_error_code(std::errc::not_supported);
+			catch(const std::bad_alloc&) {
+				return std::make_error_code(std::errc::not_enough_memory);
 			}
 		}
 		inline static auto result_of(int32_t ret)
