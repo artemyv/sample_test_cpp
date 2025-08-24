@@ -1,0 +1,48 @@
+name: Build
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    types: [opened, synchronize, reopened]
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    env:
+      BUILD_WRAPPER_OUT_DIR: build_wrapper_output_directory # Directory where build-wrapper output will be placed
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Shallow clones should be disabled for a better relevancy of analysis
+      - uses: actions/checkout@v4
+      - name: Set up Python 3.8 for gcovr
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.8
+      - name: install gcovr 5.0
+        run: |
+          pip install gcovr==5.0 # 5.1 is not supported
+      - name: Install Build Wrapper
+        uses: SonarSource/sonarqube-scan-action/install-build-wrapper@v4
+      - name: Run Build Wrapper
+        run: |
+          mkdir build
+          cmake -S . -B build -DCODE_COVERAGE=ON -DSAMPLE_CPP_BUILD_TESTING=ON
+          build-wrapper-linux-x86-64 --out-dir ${{ env.BUILD_WRAPPER_OUT_DIR }} cmake --build build/ --config Release
+      - name: Run tests to generate coverage statistics
+        run: |
+          cd build
+          ctest --output-on-failure
+          cd ..
+      - name: Collect coverage into one XML report
+        run: |
+          echo gcovr off #gcovr --sonarqube --exclude '.*_deps/*' > coverage.xml
+      - name: SonarQube Scan
+        uses: SonarSource/sonarqube-scan-action@v4
+        env:
+          SONAR_TOKEN: ${{ secrets.SONARCLOUD_TOKEN }} # Put the name of your token here
+        with:
+          args: >
+            --define sonar.cfamily.compile-commands="${{ env.BUILD_WRAPPER_OUT_DIR }}/compile_commands.json"
+            --define sonar.coverageReportPaths=coverage.xml
