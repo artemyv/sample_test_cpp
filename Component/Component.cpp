@@ -10,14 +10,17 @@ using namespace ComponentAPI;
 
 namespace
 {
-	void trace(const char* msg, std::source_location loc = std::source_location::current()) noexcept
+	// Allocation-safe trace for OOM paths (no std::format usage)
+	inline void trace_noalloc(const char* msg, const char* loc) noexcept {
+		std::fputs("Component 1:\t", stdout);
+		std::fputs(msg, stdout);
+		std::fputs(" [", stdout);
+		std::fputs(loc, stdout);
+		std::fputs("]\n", stdout);
+	}
+	inline void trace(const char* msg, std::source_location loc = std::source_location::current()) noexcept
 	{
-		try {
-			std::puts(std::format("Component 1:\t{:40} [{}:{}]", msg, loc.function_name(), loc.line()).c_str());
-		}
-		catch(const std::format_error& ex) {
-			std::puts(ex.what());
-		}
+		trace_noalloc(msg, loc.function_name());
 	}
 	//
 	// Component
@@ -46,8 +49,8 @@ namespace
 
 				return 0;
 			}
-			catch(const std::bad_alloc& e) {
-				trace(std::format("Exception: {}", e.what()).c_str());
+			catch(const std::bad_alloc&) {
+				trace_noalloc("bad_alloc in GetVersion", std::source_location::current().function_name());
 				return std::make_error_code(std::errc::not_enough_memory).value();
 			}
 		}
@@ -55,36 +58,36 @@ namespace
 		// IRandom
 		int32_t  GenerateRandomNumbers(size_t count, const char** numbers_json)  noexcept override
 		{
-			if(numbers_json == nullptr) {
-				trace("numbers_json is null");
-				return std::make_error_code(std::errc::invalid_argument).value();
-			}
-
-			std::random_device rd;  // a seed source for the random number engine
-			std::mt19937 gen(rd()); // mersenne_twister_engine seeded with rd()
-			std::uniform_int_distribution distrib(1, 6);
-
-			// Generate random numbers
-			std::string numbers = R"({"numbers": [)";
-			for(size_t i = 0; i < count; ++i) {
-				numbers += std::format("{},", distrib(gen)); // Generate a random number from 1 to 6
-			}
-			if(!numbers.empty() && numbers.back() == ',') {
-				numbers.pop_back(); // Remove the last comma
-			}
-			numbers += "]}"; // Close the JSON object
 			try {
+				if(numbers_json == nullptr) {
+					trace("numbers_json is null");
+					return std::make_error_code(std::errc::invalid_argument).value();
+				}
+
+				std::random_device rd;  // a seed source for the random number engine
+				std::mt19937 gen(rd()); // mersenne_twister_engine seeded with rd()
+				std::uniform_int_distribution distrib(1, 6);
+
+				// Generate random numbers
+				std::string numbers = R"({"numbers": [)";
+				for(size_t i = 0; i < count; ++i) {
+					numbers += std::format("{},", distrib(gen)); // Generate a random number from 1 to 6
+				}
+				if(!numbers.empty() && numbers.back() == ',') {
+					numbers.pop_back(); // Remove the last comma
+				}
+				numbers += "]}"; // Close the JSON object
 				auto numbers_json_ptr = std::make_unique<char[]>(numbers.size() + 1);
 				std::memcpy(numbers_json_ptr.get(), numbers.c_str(), numbers.size() + 1); // include null terminator
 				*numbers_json = numbers_json_ptr.release(); // Transfer ownership of the pointer to the caller
 				return 0;
 			}
-			catch(const std::bad_alloc& e) {
-				trace(std::format("Exception: {}", e.what()).c_str());
+			catch(const std::bad_alloc&) {
+				trace_noalloc("bad_alloc in GenerateRandomNumbers", std::source_location::current().function_name());
 				return std::make_error_code(std::errc::not_enough_memory).value();
 			}
-			catch(...) {
-				trace("Unknown exception occurred");
+			catch(const std::format_error&) {
+				trace("format_error in GenerateRandomNumbers");
 				return std::make_error_code(std::errc::interrupted).value();
 			}
 		}
@@ -145,13 +148,11 @@ namespace
 	unsigned long  CA::AddRef() noexcept
 	{
 		const auto res = m_cRef.fetch_add(1, std::memory_order_relaxed) + 1;
-		trace(std::format("AddRef: {}", res).c_str());
 		return res;
 	}
 	unsigned long  CA::Release() noexcept
 	{
 		const auto res = m_cRef.fetch_sub(1, std::memory_order_acq_rel) - 1;
-		trace(std::format("Release: {}", res).c_str());
 		if(res == 0) {
             std::unique_ptr<CA> pA(this); // ensure deletion
 			return 0;
