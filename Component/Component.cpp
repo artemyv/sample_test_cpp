@@ -148,13 +148,11 @@ namespace
 	unsigned long  CA::AddRef() noexcept
 	{
 		const auto res = m_cRef.fetch_add(1, std::memory_order_relaxed) + 1;
-		//trace(std::format("AddRef: {}", res).c_str());
 		return res;
 	}
 	unsigned long  CA::Release() noexcept
 	{
 		const auto res = m_cRef.fetch_sub(1, std::memory_order_acq_rel) - 1;
-		//trace(std::format("Release: {}", res).c_str());
 		if(res == 0) {
             std::unique_ptr<CA> pA(this); // ensure deletion
 			return 0;

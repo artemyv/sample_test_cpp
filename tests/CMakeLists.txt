@@ -66,9 +66,6 @@ target_compile_options(ComponentWrapperTests PRIVATE
      $<$<CXX_COMPILER_ID:MSVC>:/W4 /WX>
     )
 
-add_test(NAME ComponentWrapperTests COMMAND ComponentWrapperTests)
-
-
 add_executable(ComponentTests 
     "ComponentTests.cpp"
     "../Component/Component.cpp"
@@ -99,6 +96,7 @@ target_compile_options(ComponentTests PRIVATE
 add_dependencies(ComponentTests Component)
 
 add_test(NAME ComponentTests COMMAND ComponentTests)
+add_test(NAME ComponentWrapperTests COMMAND ComponentWrapperTests)
 
 
 

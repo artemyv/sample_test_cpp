@@ -22,6 +22,11 @@ namespace
             g_failAlloc.store(false, std::memory_order_release);
             g_failRemaining.store(-1, std::memory_order_relaxed);
         }
+        FailAllocGuard(const FailAllocGuard&) = delete;
+        FailAllocGuard& operator=(const FailAllocGuard&) = delete;
+        FailAllocGuard(FailAllocGuard&&) = delete;
+        FailAllocGuard& operator=(FailAllocGuard&&) = delete;
+
         static std::atomic<bool>& fail()
         {
             return g_failAlloc;

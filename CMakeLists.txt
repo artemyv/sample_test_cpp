@@ -67,6 +67,6 @@ if(SAMPLE_CPP_BUILD_TESTING)
 
     add_custom_target(run_tests ALL
         COMMAND ${CMAKE_CTEST_COMMAND} --output-on-failure --verbose
-        DEPENDS ComponentWrapperTests
+        DEPENDS ComponentWrapperTests ComponentTests
     )
 endif()
