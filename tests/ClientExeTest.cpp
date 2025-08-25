@@ -5,6 +5,7 @@
 #include <stdexcept>
 #include <vector>
 #include <array>
+#include <format>
 #include <cerrno>
 #include <cstring>
 #include <unistd.h>
@@ -12,21 +13,37 @@
 #include <fcntl.h>
 namespace
 {
+    std::string readAllOutput(int outPipe)
+    {
+        // Read all output
+        std::string output;
+        std::array<char, 4096> buf{};
+        for(;;) {
+            ssize_t n = read(outPipe, buf.data(), buf.size());
+            if(n > 0) {
+                output.append(buf.data(), static_cast<size_t>(n));
+                continue;
+            }
+            if(n == 0 || errno != EINTR) {
+                return output;
+            }
+        }
+    }
     // Helper to run a process and provide input via stdin
     std::string run_client_with_input(const std::filesystem::path& exe, std::string_view input)
     {
         if(!std::filesystem::exists(exe))
             throw std::invalid_argument("Executable not found: " + exe.string());
 
-        std::array<int, 2> inPipe;
-        std::array<int, 2> outPipe;
+        std::array<int, 2> inPipe{};
+        std::array<int, 2> outPipe{};
         if(pipe(inPipe.data()) != 0 || pipe(outPipe.data()) != 0) {
-            throw std::invalid_argument(std::string("pipe() failed: ") + std::to_string(errno));
+            throw std::invalid_argument(std::format("pipe() failed: {}", errno));
         }
 
         pid_t pid = fork();
         if(pid < 0) {
-            throw std::invalid_argument(std::string("fork() failed: ") + std::to_string(errno));
+            throw std::invalid_argument(std::format("fork() failed: {}", errno));
         }
         if(pid == 0) {
             // Child
@@ -52,39 +69,23 @@ namespace
 
         // Send input then close stdin
         if(!input.empty()) {
-            ssize_t written = write(inPipe[1], input.data(), input.size());
-            (void)written;
+            [[maybe_unused]]ssize_t written = write(inPipe[1], input.data(), input.size());
         }
         close(inPipe[1]);
 
         // Read all output
-        std::string output;
-        char buf[4096];
-        for(;;) {
-            ssize_t n = read(outPipe[0], buf, sizeof(buf));
-            if(n > 0) {
-                output.append(buf, static_cast<size_t>(n));
-            }
-            else if(n == 0) {
-                break;
-            }
-            else {
-                if(errno == EINTR) continue;
-                break;
-            }
-        }
+        auto output = readAllOutput(outPipe[0]);
         close(outPipe[0]);
 
         int status = 0;
         waitpid(pid, &status, 0);
         // (Optional) append exit code info for debugging
-        output.append("\n[exit-status]=" + std::to_string(status));
+        output.append(std::format("\n[exit-status]={}", status));
         return output;
     }
 }
 namespace ClientExeTest
 {
-
     TEST(ClientExeTest, IncorrectPathShowsError)
     {
         auto exe_path = std::filesystem::absolute(CLIENT_TARGET_NAME);
