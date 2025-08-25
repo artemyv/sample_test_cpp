@@ -66,8 +66,7 @@ namespace ComponentWrapper
 				return 0;
 			});
 		}	
-	
-	private:
+	protected:	
 		template <typename F>
 		static std::error_code safecall(F&& f)
 		{
@@ -81,6 +80,7 @@ namespace ComponentWrapper
 				return std::make_error_code(std::errc::not_enough_memory);
 			}
 		}
+	private:
 		inline static auto result_of(int32_t ret)
 		{
 			return std::make_error_code(static_cast<std::errc>(ret));

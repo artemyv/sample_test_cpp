@@ -1,26 +1,23 @@
 #include <gtest/gtest.h>
-#define private public           // Expose safecall for white-box test
-#include <ComponentWrapper.h>
-#undef private
 #include <string>
 #include <filesystem>
+
 #include <dllhelper.hpp>
 #include <details/IFace.h>
+
+#include <ComponentWrapper.h>
+
+
 
 namespace ComponentWrapperTests
 {
     class ComponentWrapperTest: public ::testing::Test
     {
         std::filesystem::path dllPath;
-
     protected:
-        const std::filesystem::path& GetDllPath() const
-        {
-            return dllPath;
-        }
+        const std::filesystem::path& GetDllPath() const { return dllPath; }
         void SetUp() override
         {
-            // Set the path to your built Component.dll here
             dllPath = std::filesystem::absolute(COMPONENT_TARGET_NAME);
         }
     };
@@ -58,18 +55,16 @@ namespace ComponentWrapperTests
         EXPECT_EQ(ec, expected);
     }
 
+    // -------------------------
+    // Bad component tests
+    // -------------------------
     class BadComponentWrapperTest: public ::testing::Test
     {
         std::filesystem::path dllPath;
-
     protected:
-        const std::filesystem::path& GetDllPath() const
-        {
-            return dllPath;
-        }
+        const std::filesystem::path& GetDllPath() const { return dllPath; }
         void SetUp() override
         {
-            // Set the path to your built Component.dll here
             dllPath = std::filesystem::absolute(BAD_COMPONENT_TARGET_NAME);
         }
     };
@@ -81,7 +76,7 @@ namespace ComponentWrapperTests
         EXPECT_TRUE(!ec);
     }
 
-    TEST_F(BadComponentWrapperTest, GetVersionReturnsVersionString)
+    TEST_F(BadComponentWrapperTest, GetVersionReturnsError)
     {
         ComponentWrapper::ComponentWrapper wrapper(GetDllPath());
         std::string version;
@@ -90,7 +85,7 @@ namespace ComponentWrapperTests
         EXPECT_EQ(ec, expected);
     }
 
-    TEST_F(BadComponentWrapperTest, GenerateRandomNumbersReturnsJson)
+    TEST_F(BadComponentWrapperTest, GenerateRandomNumbersReturnsError)
     {
         ComponentWrapper::ComponentWrapper wrapper(GetDllPath());
         std::string numbers_json;
@@ -105,18 +100,32 @@ namespace ComponentWrapperTests
         auto ec = wrapper.Fy();
         EXPECT_TRUE(!ec);
     }
+}
 
-    TEST(SafeCallTest, SafecallCatchesBadAlloc)
+namespace SafecallTest
+{
+    class SafeCallTest: public ::testing::Test, public ComponentWrapper::ComponentWrapper
+    {
+    public:
+        SafeCallTest(): ComponentWrapper(GetDllPath()) {}
+        //We only need the real dll path here - so that constructor will not throw exception
+        //tests do not use it
+    private:
+        std::filesystem::path GetDllPath() const { return std::filesystem::absolute(COMPONENT_TARGET_NAME); }
+    };
+
+
+    TEST_F(SafeCallTest, SafecallCatchesBadAlloc)
     {
         // Directly invoke private static safecall (temporarily made public via macro)
-        auto ec = ComponentWrapper::ComponentWrapper::safecall([]() {
+        auto ec = safecall([]() -> int32_t {
             throw std::bad_alloc();
-            return 0;
             });
         auto expected = std::make_error_code(std::errc::not_enough_memory);
         EXPECT_EQ(ec, expected);
     }
 }
+
 namespace ComponentRawTest
 {
     TEST(ComponentRawInterfaceTest, GetVersionWithNullPointerReturnsInvalidArgument)

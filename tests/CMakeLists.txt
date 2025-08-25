@@ -13,7 +13,7 @@ endif()
 add_library(BadComponent SHARED
     BadComponent.cpp
     ${WIN_COMPONENT_SOURCES}
-)
+ )
 
 target_link_libraries(BadComponent PRIVATE Interface stduuid)
 
@@ -68,6 +68,37 @@ target_compile_options(ComponentWrapperTests PRIVATE
 
 add_test(NAME ComponentWrapperTests COMMAND ComponentWrapperTests)
 
+
+add_executable(ComponentTests 
+    "ComponentTests.cpp"
+    "../Component/Component.cpp"
+)
+target_link_libraries(ComponentTests
+    PRIVATE
+        gtest_main
+        gtest
+        Interface
+        Component
+        stduuid
+)
+
+target_include_directories(ComponentTests
+    PRIVATE
+        ${CMAKE_SOURCE_DIR}/Interface
+        ${CMAKE_SOURCE_DIR}/Component
+)
+target_compile_definitions(ComponentTests
+    PRIVATE
+        $<$<CXX_COMPILER_ID:MSVC>:WIN32_LEAN_AND_MEAN NOMINMAX>
+)
+target_compile_options(ComponentTests PRIVATE
+     $<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-Wall -Wextra -Wpedantic -Werror>
+     $<$<CXX_COMPILER_ID:MSVC>:/W4 /WX>
+    )
+
+add_dependencies(ComponentTests Component)
+
+add_test(NAME ComponentTests COMMAND ComponentTests)
 
 
 
