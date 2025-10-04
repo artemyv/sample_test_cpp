@@ -3,3 +3,5 @@ obj/*.*
 *.ipch
 /Debug
 /.vs
+/src/*.user
+x64
