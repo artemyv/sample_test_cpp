@@ -67,7 +67,11 @@ namespace ComponentWrapper
 			});
 		}	
 	protected:	
-		template <typename F>
+		// forward-declare result_of so safecall can use it (deduced return types must be declared before use)
+		inline static auto result_of(int32_t ret)
+		{
+			return std::make_error_code(static_cast<std::errc>(ret));
+		}		template <typename F>
 		static std::error_code safecall(F&& f)
 		{
 			try {
@@ -81,10 +85,7 @@ namespace ComponentWrapper
 			}
 		}
 	private:
-		inline static auto result_of(int32_t ret)
-		{
-			return std::make_error_code(static_cast<std::errc>(ret));
-		}
+
 		static ComponentAPI::IUnknownReplica* CreateInstanceofUnknown(const dll::Helper& helper)
 		{
 			dll::Fp<decltype(::CreateInstance)> create{helper[dll::procname_t("CreateInstance")]};
