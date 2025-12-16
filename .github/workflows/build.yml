@@ -20,7 +20,7 @@ jobs:
       - name: Run Build Wrapper
         run: |
           mkdir build
-          cmake -S . -B build -DCODE_COVERAGE=ON -DSAMPLE_CPP_BUILD_TESTING=ON
+          cmake -S . -B build -DCODE_COVERAGE=ON -DSAMPLE_CPP_BUILD_TESTING=ON -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
           build-wrapper-linux-x86-64 --out-dir ${{ env.BUILD_WRAPPER_OUT_DIR }} cmake --build build/ --config Release
       - name: Run gcov to translate `.gcda` files into `.gcov` readable by humans and SonarCloud
         run: |
