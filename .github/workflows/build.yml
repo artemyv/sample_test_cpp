@@ -21,7 +21,8 @@ jobs:
         run: |
           mkdir build
           cmake -S . -B build -DCODE_COVERAGE=ON -DSAMPLE_CPP_BUILD_TESTING=ON -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
-          build-wrapper-linux-x86-64 --out-dir ${{ env.BUILD_WRAPPER_OUT_DIR }} cmake --build build/ --config Release
+          #build-wrapper-linux-x86-64 --out-dir ${{ env.BUILD_WRAPPER_OUT_DIR }} cmake --build build/ --config Release
+          cmake --build build/ --config Release
       - name: Run gcov to translate `.gcda` files into `.gcov` readable by humans and SonarCloud
         run: |
           mkdir coverage-dir
@@ -34,7 +35,8 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }} # Put the name of your token here
         with:
           args: >
-            --define sonar.cfamily.compile-commands=${{ env.BUILD_WRAPPER_OUT_DIR }}/compile_commands.json
+            #--define sonar.cfamily.compile-commands=${{ env.BUILD_WRAPPER_OUT_DIR }}/compile_commands.json
+            --define sonar.cfamily.compile-commands=build/compile_commands.json
             --define sonar.cfamily.gcov.reportsPath=coverage-dir
             --define sonar.tests=tests
 
