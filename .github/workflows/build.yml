@@ -1,4 +1,6 @@
 name: Build
+permissions:
+  contents: read
 on:
   push:
     branches:
@@ -27,12 +29,10 @@ jobs:
           find .. -name '*.o' | xargs gcov --preserve-paths
           cd ..
       - name: Official SonarQube Scan
-        uses: SonarSource/sonarqube-scan-action@v7.0.0
+        uses: SonarSource/sonarqube-scan-action@v6
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }} # Put the name of your token here
         with:
           args: >
             --define sonar.cfamily.compile-commands=build/compile_commands.json
             --define sonar.cfamily.gcov.reportsPath=coverage-dir
-            --define sonar.tests=tests
-

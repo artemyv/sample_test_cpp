@@ -22,7 +22,7 @@ int main()
 
         trace("get IX");
         {
-            std::string version{"Unknown"};
+            std::string version{"Unknown version"};
             const auto res = wrapper.GetVersion(version);
             if(res) {
                 trace(std::format("GetVersion failed with error: {}", res.message()));
