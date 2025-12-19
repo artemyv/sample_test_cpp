@@ -20,6 +20,7 @@ jobs:
       - name: Run Build
         run: |
           mkdir build
+          cmake --version
           cmake -S . -B build -DCODE_COVERAGE=ON -DSAMPLE_CPP_BUILD_TESTING=ON -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
           cmake --build build/ --config Release
       - name: Run gcov to translate `.gcda` files into `.gcov` readable by humans and SonarCloud
