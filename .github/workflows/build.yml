@@ -11,12 +11,21 @@ jobs:
   build:
     name: Build
     runs-on: ubuntu-latest
-    env:
-      BUILD_WRAPPER_OUT_DIR: build_wrapper_output_directory # Directory where build-wrapper output will be placed
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0 # Shallow clones should be disabled for a better relevancy of analysis
+      - name: Update cmake
+        run: |
+          sudo apt-get update
+          sudo apt-get install ca-certificates gpg wget
+          test -f /usr/share/doc/kitware-archive-keyring/copyright ||
+          wget -O - https://apt.kitware.com/keys/kitware-archive-latest.asc 2>/dev/null | gpg --dearmor - | sudo tee /usr/share/keyrings/kitware-archive-keyring.gpg >/dev/null
+          echo 'deb [signed-by=/usr/share/keyrings/kitware-archive-keyring.gpg] https://apt.kitware.com/ubuntu/ focal main' | sudo tee /etc/apt/sources.list.d/kitware.list >/dev/null
+          sudo apt-get update
+          sudo apt-get install kitware-archive-keyring
+          sudo apt-get update
+          sudo apt-get install cmake
       - name: Run Build
         run: |
           mkdir build
